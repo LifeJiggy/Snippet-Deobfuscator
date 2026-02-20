@@ -6,7 +6,7 @@ const generate = require("@babel/generator").default;
 class DeobfuscationRules {
   constructor() {
     this.name = "DeobfuscationRules";
-    this.version = "1.0.0";
+    this.version = "3.0.0";
     this.violations = [];
     this.statistics = {
       totalChecks: 0,

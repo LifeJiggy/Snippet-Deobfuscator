@@ -788,6 +788,213 @@ const controlFlowAnalyzer = {
     return hasFlattening;
   },
 };
+
+const constantFolder = {
+  evaluate: (node) => {
+    if (!node) return null;
+
+    switch (node.type) {
+      case "NumericLiteral":
+        return node.value;
+      case "StringLiteral":
+        return node.value;
+      case "BooleanLiteral":
+        return node.value;
+      case "NullLiteral":
+        return null;
+      case "UnaryExpression":
+        const arg = constantFolder.evaluate(node.argument);
+        if (arg === null) return null;
+        switch (node.operator) {
+          case "-":
+            return -arg;
+          case "+":
+            return +arg;
+          case "!":
+            return !arg;
+          case "~":
+            return ~arg;
+          case "typeof":
+            return typeof arg;
+          default:
+            return null;
+        }
+      case "BinaryExpression":
+        const left = constantFolder.evaluate(node.left);
+        const right = constantFolder.evaluate(node.right);
+        if (left === null || right === null) return null;
+        switch (node.operator) {
+          case "+":
+            return left + right;
+          case "-":
+            return left - right;
+          case "*":
+            return left * right;
+          case "/":
+            return left / right;
+          case "%":
+            return left % right;
+          case "**":
+            return Math.pow(left, right);
+          case "|":
+            return left | right;
+          case "&":
+            return left & right;
+          case "^":
+            return left ^ right;
+          case "<<":
+            return left << right;
+          case ">>":
+            return left >> right;
+          case ">>>":
+            return left >>> right;
+          case "==":
+            return left == right;
+          case "===":
+            return left === right;
+          case "!=":
+            return left != right;
+          case "!==":
+            return left !== right;
+          case "<":
+            return left < right;
+          case ">":
+            return left > right;
+          case "<=":
+            return left <= right;
+          case ">=":
+            return left >= right;
+          case "in":
+            return left in right;
+          case "instanceof":
+            return left instanceof right;
+          default:
+            return null;
+        }
+      case "LogicalExpression":
+        const logicalLeft = constantFolder.evaluate(node.left);
+        const logicalRight = constantFolder.evaluate(node.right);
+        if (logicalLeft === null || logicalRight === null) return null;
+        switch (node.operator) {
+          case "||":
+            return logicalLeft || logicalRight;
+          case "&&":
+            return logicalLeft && logicalRight;
+          case "??":
+            return logicalLeft ?? logicalRight;
+          default:
+            return null;
+        }
+      case "ConditionalExpression":
+        const test = constantFolder.evaluate(node.test);
+        if (test === null) return null;
+        return test
+          ? constantFolder.evaluate(node.consequent)
+          : constantFolder.evaluate(node.alternate);
+      case "MemberExpression":
+        if (
+          node.object.type === "Identifier" &&
+          node.property.type === "StringLiteral"
+        ) {
+          return {
+            type: "memberAccess",
+            object: node.object.name,
+            property: node.property.value,
+          };
+        }
+        return null;
+      default:
+        return null;
+    }
+  },
+
+  foldConstants: (ast) => {
+    let changed = false;
+    traverse(ast, {
+      BinaryExpression(path) {
+        const result = constantFolder.evaluate(path.node);
+        if (result !== null && typeof result !== "object") {
+          path.replaceWith({
+            type: "NumericLiteral",
+            value: result,
+            loc: path.node.loc,
+          });
+          changed = true;
+        }
+      },
+      UnaryExpression(path) {
+        const result = constantFolder.evaluate(path.node);
+        if (result !== null && typeof result !== "object") {
+          path.replaceWith({
+            type:
+              typeof result === "number" ? "NumericLiteral" : "BooleanLiteral",
+            value: result,
+            loc: path.node.loc,
+          });
+          changed = true;
+        }
+      },
+    });
+    return changed;
+  },
+};
+
+const stringArrayDetector = {
+  findArrays: (ast) => {
+    const arrays = [];
+    traverse(ast, {
+      VariableDeclarator(path) {
+        const init = path.node.init;
+        if (
+          init &&
+          init.type === "ArrayExpression" &&
+          init.elements.length > 5
+        ) {
+          const allStrings = init.elements.every(
+            (el) =>
+              el &&
+              (el.type === "StringLiteral" || el.type === "NumericLiteral")
+          );
+          if (allStrings) {
+            arrays.push({
+              name: path.node.id?.name,
+              elements: init.elements.map((el) => el.value),
+              loc: path.node.loc,
+            });
+          }
+        }
+      },
+    });
+    return arrays;
+  },
+
+  findStringFunctions: (ast) => {
+    const functions = [];
+    traverse(ast, {
+      FunctionDeclaration(path) {
+        const body = path.get("body");
+        if (body.isBlockStatement()) {
+          const statements = body.node.body;
+          if (statements.length > 10) {
+            const hasArrayAccess = statements.some(
+              (stmt) =>
+                stmt.expression && stmt.expression.type === "MemberExpression"
+            );
+            if (hasArrayAccess) {
+              functions.push({
+                name: path.node.id?.name,
+                params: path.node.params.map((p) => p.name),
+                loc: path.node.loc,
+              });
+            }
+          }
+        }
+      },
+    });
+    return functions;
+  },
+};
+
 const stringDecryptor = {
   decryptString: (encryptedStr, key) => {
     try {
@@ -869,34 +1076,34 @@ const stringDecryptor = {
 
   customSubstitutionDecoder: (str) => {
     const substitutionMap = {
-        'qsnln': 'promo',
-        'ghsd': 'fire',
-        'qsdwhdv': 'preview',
-        'cnuunl': 'bottom',
-        'rtcuhumd': 'subtitle',
-        'z': 'render',
-        'sunfk': 'trial',
-        'jhcfk': 'modal',
+      qsnln: "promo",
+      ghsd: "fire",
+      qsdwhdv: "preview",
+      cnuunl: "bottom",
+      rtcuhumd: "subtitle",
+      z: "render",
+      sunfk: "trial",
+      jhcfk: "modal",
     };
 
     // Simple word-part substitution based on debug logs
     // This is a very specific decoder and might need to be expanded
     const parts = str.split(/([,*.#$])/);
     if (parts.length > 1) {
-        const decodedParts = parts.map(part => {
-            if (substitutionMap[part]) {
-                return substitutionMap[part];
-            }
-            if (part === ',') return '-';
-            if (part === '*') return '-';
-            if (part === '*') return '-';
-            return part;
-        });
-        const decodedStr = decodedParts.join('');
-        // Only return if something was actually changed
-        if (decodedStr !== str) {
-            return decodedStr;
+      const decodedParts = parts.map((part) => {
+        if (substitutionMap[part]) {
+          return substitutionMap[part];
         }
+        if (part === ",") return "-";
+        if (part === "*") return "-";
+        if (part === "*") return "-";
+        return part;
+      });
+      const decodedStr = decodedParts.join("");
+      // Only return if something was actually changed
+      if (decodedStr !== str) {
+        return decodedStr;
+      }
     }
     return str;
   },
@@ -904,15 +1111,26 @@ const stringDecryptor = {
   decodeString: (str) => {
     if (!str || typeof str !== "string") return str;
 
+    // Skip very short strings (likely not encrypted)
+    if (str.length < 3) return str;
+
+    // Skip strings that are already valid readable text
+    const readableRatio = (str.match(/[a-zA-Z]/g) || []).length / str.length;
+    if (readableRatio > 0.7 && /^[a-zA-Z\s.,;:!?()\[\]"'\-_]+$/.test(str)) {
+      return str;
+    }
+
     try {
       // First fix any Unicode replacement characters
       str = stringDecryptor.fixUnicodeReplacements(str);
 
-      // React-specific ROT cipher detection (added for obfuscated React code)
+      // React-specific ROT cipher detection - only for strings with special chars
+      // that indicate obfuscation (^, _, / in middle of words)
       if (
-        /^[a-z]+[\^_\/]{1}[a-z]+/.test(str) ||
-        /tuw[A-Za-z]+/.test(str) ||
-        /wfkbssb[A-Za-z]+/.test(str)
+        /^[a-z]+[\^_\/]{1}[a-z]+$/.test(str) ||
+        /tuw[A-Za-z]+$/.test(str) ||
+        /wfkbssb[A-Za-z]+$/.test(str) ||
+        /^[a-z]+'[a-z]+/.test(str) // Only for strings with embedded apostrophes
       ) {
         const decoded = str
           .split("")
@@ -936,29 +1154,59 @@ const stringDecryptor = {
         return decoded;
       }
 
-      // Try the specialized decoder for other patterns
-      const specialDecoded = stringDecryptor.specializedDecoder(str);
-      if (specialDecoded !== str) {
-        return specialDecoded;
+      // Try the specialized decoder for other patterns - ONLY for obvious obfuscation
+      if (/[a-z]+'[a-z]+/.test(str)) {
+        const specialDecoded = stringDecryptor.specializedDecoder(str);
+        if (specialDecoded !== str) {
+          return specialDecoded;
+        }
       }
 
-      // Check for common encryption patterns
+      // Check for common encryption patterns - only for obvious encoded strings
       const type = stringDecryptor.detectEncryption(str);
 
       // Attempt standard decoding based on detected type
       switch (type) {
         case "base64":
-          return Buffer.from(str, "base64").toString();
+          // Only decode if it looks like valid base64 (proper padding)
+          if (/^[A-Za-z0-9+/]+=*$/.test(str) && str.length >= 4) {
+            try {
+              return Buffer.from(str, "base64").toString();
+            } catch (e) {
+              /* ignore */
+            }
+          }
+          return str;
         case "hex":
-          return Buffer.from(str, "hex").toString();
+          // Only decode if even length hex
+          if (
+            /^[0-9a-fA-F]+$/.test(str) &&
+            str.length % 2 === 0 &&
+            str.length >= 4
+          ) {
+            try {
+              return Buffer.from(str, "hex").toString();
+            } catch (e) {
+              /* ignore */
+            }
+          }
+          return str;
         case "rot13":
-          return str.replace(/[a-zA-Z]/g, (c) =>
+          // Only apply ROT13 if result is different and looks valid
+          const rot13Result = str.replace(/[a-zA-Z]/g, (c) =>
             String.fromCharCode(
               (c <= "Z" ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26
             )
           );
+          // Only return if the decoded version looks like valid text
+          if (
+            /^[a-zA-Z][a-zA-Z\s]*[a-zA-Z]$/.test(rot13Result) &&
+            rot13Result.length >= 3
+          ) {
+            return rot13Result;
+          }
+          return str;
         case "customEncryption":
-          // Use a specialized decoder for this type
           return stringDecryptor.specializedDecoder(str);
         default:
           // Try multiple decoding strategies for unidentified patterns
@@ -1026,7 +1274,7 @@ const stringDecryptor = {
         e.message
       );
       return str; // Return original on error
-    };
+    }
   },
 };
 
@@ -2445,6 +2693,8 @@ function applyFrameworkRenaming(code, analysis) {
 module.exports = {
   recognizePatterns,
   controlFlowAnalyzer,
+  constantFolder,
+  stringArrayDetector,
   stringDecryptor,
   minifiedCodeHandler,
   frameworkDetector,

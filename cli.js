@@ -2,7 +2,20 @@
 
 const fs = require("fs");
 const path = require("path");
+const readline = require("readline");
 const { deobfuscateSnippet } = require("./index.js");
+
+const COLORS = {
+  reset: "\x1b[0m",
+  red: "\x1b[31m",
+  green: "\x1b[32m",
+  yellow: "\x1b[33m",
+  blue: "\x1b[34m",
+  magenta: "\x1b[35m",
+  cyan: "\x1b[36m",
+  gray: "\x1b[90m",
+  bold: "\x1b[1m",
+};
 
 class CLI {
   constructor() {
@@ -16,6 +29,8 @@ class CLI {
       json: false,
       noColor: false,
       config: null,
+      interactive: false,
+      quiet: false,
     };
     this.config = this.loadConfig();
   }
@@ -36,7 +51,7 @@ class CLI {
           }
           return require(configPath);
         } catch (e) {
-          console.warn(`Warning: Failed to load config from ${configPath}`);
+          // Skip invalid configs
         }
       }
     }
@@ -57,7 +72,6 @@ class CLI {
       }
 
       const nextArg = args[i + 1];
-      const isBoolean = !nextArg || nextArg.startsWith("-");
 
       switch (arg) {
         case "-i":
@@ -82,6 +96,17 @@ class CLI {
         case "-v":
         case "--verbose":
           parsed.verbose = true;
+          i++;
+          break;
+        case "-q":
+        case "--quiet":
+          parsed.quiet = true;
+          parsed.verbose = false;
+          i++;
+          break;
+        case "-y":
+        case "--yes":
+          parsed.interactive = false;
           i++;
           break;
         case "-w":
@@ -117,7 +142,7 @@ class CLI {
           this.showVersion();
           process.exit(0);
         default:
-          console.error(`Unknown option: ${arg}`);
+          this.log(`Unknown option: ${arg}`, "error");
           this.showHelp();
           process.exit(1);
       }
@@ -127,54 +152,73 @@ class CLI {
     return this.options;
   }
 
+  showBanner() {
+    if (this.options.quiet) return;
+
+    const banner = `
+${COLORS.cyan}╔═══════════════════════════════════════════════════════════════╗
+║${COLORS.reset}   ${COLORS.bold}JS Snippet Deobfuscator${COLORS.reset} ${COLORS.gray}v3.0.0${COLORS.reset}                            ${COLORS.cyan}║
+║${COLORS.reset}   Transform obfuscated code into readable JavaScript        ${COLORS.cyan}║
+╚═══════════════════════════════════════════════════════════════╝${COLORS.reset}
+`;
+    console.log(banner);
+  }
+
   showHelp() {
-    console.log(`
-JavaScript Snippet Deobfuscator CLI
+    const help = `
+${COLORS.bold}Usage:${COLORS.reset}
+  ${COLORS.green}node cli.js${COLORS.reset} <input> [output] [options]
+  ${COLORS.green}node cli.js${COLORS.reset} [options]
 
-Usage: node cli.js [options] [input] [output]
+${COLORS.bold}Input:${COLORS.reset}
+  ${COLORS.cyan}input.js${COLORS.reset}              Input JavaScript file
+  ${COLORS.cyan}-${COLORS.reset}                      Read from stdin (pipe)
 
-Options:
-  -i, --input <file>      Input file path
-  -o, --output <file>    Output file path
-  -f, --format           Format output code (default: true)
-  --no-format            Don't format output code
-  -v, --verbose          Verbose output
-  -w, --watch            Watch input file for changes
-  -s, --stats            Show statistics
-  -j, --json             Output as JSON
-  --no-color             Disable colored output
-  -c, --config <file>    Custom config file
-  -h, --help             Show this help message
-  -V, --version          Show version
+${COLORS.bold}Options:${COLORS.reset}
+  ${COLORS.yellow}-i, --input <file>${COLORS.reset}   Input file path
+  ${COLORS.yellow}-o, --output <file>${COLORS.reset} Output file path
+  ${COLORS.yellow}-f, --format${COLORS.reset}        Format output code (default: true)
+  ${COLORS.yellow}--no-format${COLORS.reset}         Don't format output code
+  ${COLORS.yellow}-v, --verbose${COLORS.reset}        Verbose output with details
+  ${COLORS.yellow}-q, --quiet${COLORS.reset}          Quiet mode (minimal output)
+  ${COLORS.yellow}-s, --stats${COLORS.reset}          Show processing statistics
+  ${COLORS.yellow}-j, --json${COLORS.reset}           Output result as JSON
+  ${COLORS.yellow}-w, --watch${COLORS.reset}          Watch input file for changes
+  ${COLORS.yellow}--no-color${COLORS.reset}          Disable colored output
+  ${COLORS.yellow}-h, --help${COLORS.reset}          Show this help message
+  ${COLORS.yellow}-V, --version${COLORS.reset}        Show version
 
-Examples:
-  node cli.js input.js output.js
-  node cli.js -i input.js -o output.js -v
-  cat input.js | node cli.js -
-  node cli.js --watch -v input.js output.js
+${COLORS.bold}Examples:${COLORS.reset}
+  ${COLORS.gray}# Process a file${COLORS.reset}
+  ${COLORS.green}node cli.js${COLORS.reset} input.js output.js
 
-Exit Codes:
-  0   Success
-  1   Error
-`);
+  ${COLORS.gray}# Process with verbose output${COLORS.reset}
+  ${COLORS.green}node cli.js${COLORS.reset} -v input.js
+
+  ${COLORS.gray}# Pipe input${COLORS.reset}
+  ${COLORS.green}echo${COLORS.reset} "const x = 1+2;" | ${COLORS.green}node cli.js${COLORS.reset} -
+
+  ${COLORS.gray}# Watch for changes${COLORS.reset}
+  ${COLORS.green}node cli.js${COLORS.reset} -w input.js output.js
+
+${COLORS.bold}Quick Start:${COLORS.reset}
+  ${COLORS.green}node cli.js${COLORS.reset} ${COLORS.cyan}<file>${COLORS.reset}           → Auto-generate output filename
+  ${COLORS.green}node cli.js${COLORS.reset} ${COLORS.cyan}<file> -${COLORS.reset}       → Output to stdout
+  ${COLORS.green}node cli.js${COLORS.reset} ${COLORS.cyan}-${COLORS.reset}             → Read from pipe
+`;
+    console.log(help);
   }
 
   showVersion() {
-    console.log("JS Snippet Deobfuscator v1.0.0");
+    console.log(`${COLORS.green}JS Snippet Deobfuscator v3.0.0${COLORS.reset}`);
+    console.log(
+      `${COLORS.gray}Deobfuscate JavaScript like a human expert${COLORS.reset}`
+    );
   }
 
   log(message, level = "info") {
+    if (this.options.quiet && level !== "error") return;
     if (!this.options.verbose && level === "debug") return;
-
-    const colors = {
-      reset: "\x1b[0m",
-      red: "\x1b[31m",
-      green: "\x1b[32m",
-      yellow: "\x1b[33m",
-      blue: "\x1b[34m",
-      magenta: "\x1b[35m",
-      cyan: "\x1b[36m",
-    };
 
     const prefix = {
       info: "[INFO]",
@@ -182,31 +226,36 @@ Exit Codes:
       error: "[ERROR]",
       debug: "[DEBUG]",
       success: "[OK]",
+      result: "[RESULT]",
     };
 
     const color =
       level === "error"
-        ? colors.red
+        ? COLORS.red
         : level === "warn"
-        ? colors.yellow
+        ? COLORS.yellow
         : level === "success"
-        ? colors.green
+        ? COLORS.green
         : level === "debug"
-        ? colors.cyan
-        : colors.reset;
+        ? COLORS.gray
+        : level === "result"
+        ? COLORS.cyan
+        : COLORS.reset;
 
     const prefixColor =
       level === "error"
-        ? colors.red
+        ? COLORS.red
         : level === "warn"
-        ? colors.yellow
+        ? COLORS.yellow
         : level === "success"
-        ? colors.green
-        : colors.blue;
+        ? COLORS.green
+        : COLORS.blue;
 
     const output = this.options.noColor
-      ? `${prefix[level]} ${message}`
-      : `${prefixColor}${prefix[level]}${colors.reset} ${color}${message}${colors.reset}`;
+      ? `${prefix[level] || "[INFO]"} ${message}`
+      : `${prefixColor}${prefix[level] || "[INFO]"}${
+          COLORS.reset
+        } ${color}${message}${COLORS.reset}`;
 
     if (level === "error") {
       console.error(output);
@@ -215,28 +264,51 @@ Exit Codes:
     }
   }
 
+  printProgressBar(percent, message = "") {
+    const width = 30;
+    const filled = Math.round((width * percent) / 100);
+    const bar = "█".repeat(filled) + "░".repeat(width - filled);
+    const color =
+      percent < 30 ? COLORS.red : percent < 70 ? COLORS.yellow : COLORS.green;
+    process.stdout.write(
+      `\r${COLORS.cyan}[${color}${bar}${COLORS.reset}] ${message}`
+    );
+    if (percent >= 100) process.stdout.write("\n");
+  }
+
   processFile(inputPath, outputPath) {
     const startTime = Date.now();
 
     try {
-      const code =
-        inputPath === "-"
-          ? fs.readFileSync(0, "utf-8")
-          : fs.readFileSync(inputPath, "utf-8");
+      let code;
+      const isStdin = inputPath === "-";
+
+      if (isStdin) {
+        code = fs.readFileSync(0, "utf-8");
+      } else {
+        if (!fs.existsSync(inputPath)) {
+          this.log(`File not found: ${inputPath}`, "error");
+          return null;
+        }
+        code = fs.readFileSync(inputPath, "utf-8");
+      }
+
+      if (!this.options.quiet) {
+        const fileInfo = isStdin ? "stdin" : path.basename(inputPath);
+        this.log(
+          `Processing ${fileInfo} (${this.formatBytes(code.length)})...`
+        );
+      }
 
       if (this.options.verbose) {
-        this.log(
-          `Processing ${inputPath === "-" ? "stdin" : inputPath}...`,
-          "info"
-        );
-        this.log(`Input size: ${code.length} bytes`, "debug");
+        this.printProgressBar(20, "Parsing code...");
       }
 
       const result = deobfuscateSnippet(code);
 
       if (result.error) {
-        this.log(result.error, "error");
-        if (result.stack && this.options.verbose) {
+        this.log(`Deobfuscation failed: ${result.error}`, "error");
+        if (this.options.verbose && result.stack) {
           console.error(result.stack);
         }
         return null;
@@ -247,9 +319,22 @@ Exit Codes:
 
       if (outputPath) {
         fs.writeFileSync(outputPath, outputCode, "utf-8");
-        this.log(`Output written to ${outputPath}`, "success");
+        this.log(`Saved to ${outputPath}`, "success");
+      } else if (!isStdin) {
+        const autoOutput = inputPath.replace(/\.js$/, ".deobfuscated.js");
+        fs.writeFileSync(autoOutput, outputCode, "utf-8");
+        this.log(`Saved to ${autoOutput}`, "success");
       } else {
-        console.log(outputCode);
+        console.log("\n" + outputCode);
+      }
+
+      if (!this.options.quiet) {
+        this.printSummary(
+          result,
+          processingTime,
+          code.length,
+          outputCode.length
+        );
       }
 
       if (this.options.stats) {
@@ -258,6 +343,10 @@ Exit Codes:
 
       if (this.options.verbose) {
         this.printVerboseOutput(result);
+      }
+
+      if (this.options.json) {
+        console.log(JSON.stringify(result, null, 2));
       }
 
       return result;
@@ -270,45 +359,99 @@ Exit Codes:
     }
   }
 
-  printStats(result, processingTime, inputSize, outputSize) {
-    const stats = {
-      "Processing Time": `${processingTime}ms`,
-      "Input Size": `${inputSize} bytes`,
-      "Output Size": `${outputSize} bytes`,
-      Reduction: `${((1 - outputSize / inputSize) * 100).toFixed(1)}%`,
-      "Patterns Found": result.patterns?.length || 0,
-      Functionality: result.functionality?.length || 0,
-      Renames: result.allRenames?.length || 0,
-      Frameworks: result.detectedFrameworks?.join(", ") || "None",
-    };
+  printSummary(result, time, inputSize, outputSize) {
+    const savings = ((1 - outputSize / inputSize) * 100).toFixed(1);
 
-    console.log("\n=== Statistics ===");
-    for (const [key, value] of Object.entries(stats)) {
-      console.log(`${key}: ${value}`);
+    console.log(`
+${COLORS.green}┌─────────────────────────────────────┐${COLORS.reset}
+${COLORS.green}│${COLORS.reset}  ${COLORS.bold}Deobfuscation Complete${
+      COLORS.reset
+    }           ${COLORS.green}│${COLORS.reset}
+${COLORS.green}├─────────────────────────────────────┤${COLORS.reset}
+${COLORS.green}│${COLORS.reset}  Time:      ${COLORS.cyan}${time}ms${
+      COLORS.reset
+    }                  ${COLORS.green}│${COLORS.reset}
+${COLORS.green}│${COLORS.reset}  Input:     ${COLORS.cyan}${this.formatBytes(
+      inputSize
+    )}${COLORS.reset}                  ${COLORS.green}│${COLORS.reset}
+${COLORS.green}│${COLORS.reset}  Output:    ${COLORS.cyan}${this.formatBytes(
+      outputSize
+    )}${COLORS.reset}                  ${COLORS.green}│${COLORS.reset}
+${COLORS.green}│${COLORS.reset}  Savings:   ${
+      savings > 0
+        ? COLORS.green + savings + "%"
+        : COLORS.red + "+" + Math.abs(savings) + "%"
+    }                  ${COLORS.green}│${COLORS.reset}
+${COLORS.green}│${COLORS.reset}  Patterns:  ${COLORS.yellow}${
+      result.patterns?.length || 0
+    }${COLORS.reset}                       ${COLORS.green}│${COLORS.reset}
+${COLORS.green}│${COLORS.reset}  Renames:   ${COLORS.yellow}${
+      result.allRenames?.length || 0
+    }${COLORS.reset}                       ${COLORS.green}│${COLORS.reset}
+${COLORS.green}└─────────────────────────────────────┘${COLORS.reset}
+`);
+
+    if (result.detectedFrameworks?.length > 0) {
+      console.log(
+        `${COLORS.cyan}Detected: ${
+          COLORS.green
+        }${result.detectedFrameworks.join(", ")}${COLORS.reset}`
+      );
     }
+  }
+
+  printStats(result, processingTime, inputSize, outputSize) {
+    console.log(`
+=== Statistics ===
+  Processing Time:  ${processingTime}ms
+  Input Size:       ${inputSize} bytes
+  Output Size:      ${outputSize} bytes
+  Size Reduction:   ${((1 - outputSize / inputSize) * 100).toFixed(1)}%
+  Patterns Found:    ${result.patterns?.length || 0}
+  Functionality:    ${result.functionality?.length || 0}
+  Name Changes:      ${result.allRenames?.length || 0}
+  Frameworks:       ${result.detectedFrameworks?.join(", ") || "None"}
+`);
   }
 
   printVerboseOutput(result) {
     if (result.patterns?.length > 0) {
       console.log("\n=== Detected Patterns ===");
-      result.patterns.forEach((p) =>
-        console.log(`  - ${p.name}: ${p.description}`)
-      );
+      result.patterns
+        .slice(0, 10)
+        .forEach((p) =>
+          console.log(
+            `  ${COLORS.cyan}•${COLORS.reset} ${COLORS.yellow}${p.name}${COLORS.reset}: ${p.description}`
+          )
+        );
+      if (result.patterns.length > 10) {
+        console.log(
+          `  ${COLORS.gray}... and ${result.patterns.length - 10} more${
+            COLORS.reset
+          }`
+        );
+      }
     }
 
     if (result.detectedFrameworks?.length > 0) {
       console.log("\n=== Detected Frameworks ===");
-      result.detectedFrameworks.forEach((f) => console.log(`  - ${f}`));
+      result.detectedFrameworks.forEach((f) =>
+        console.log(`  ${COLORS.green}✓${COLORS.reset} ${f}`)
+      );
     }
 
     if (result.allRenames?.length > 0) {
       console.log("\n=== Name Changes ===");
-      const maxDisplay = Math.min(result.allRenames.length, 20);
+      const maxDisplay = Math.min(result.allRenames.length, 15);
       result.allRenames
         .slice(0, maxDisplay)
-        .forEach((r) => console.log(`  - ${r}`));
+        .forEach((r) => console.log(`  ${COLORS.cyan}→${COLORS.reset} ${r}`));
       if (result.allRenames.length > maxDisplay) {
-        console.log(`  ... and ${result.allRenames.length - maxDisplay} more`);
+        console.log(
+          `  ${COLORS.gray}... and ${
+            result.allRenames.length - maxDisplay
+          } more${COLORS.reset}`
+        );
       }
     }
   }
@@ -323,7 +466,7 @@ Exit Codes:
 
         if (hash !== lastHash) {
           lastHash = hash;
-          this.log(`File changed, re-processing...`, "info");
+          this.log(`File changed, re-processing...`);
           this.processFile(inputPath, outputPath);
         }
       } catch (e) {
@@ -331,7 +474,7 @@ Exit Codes:
       }
     };
 
-    this.log(`Watching ${inputPath} for changes...`, "info");
+    this.log(`Watching ${inputPath} for changes...`);
     setInterval(checkAndProcess, 1000);
   }
 
@@ -345,7 +488,69 @@ Exit Codes:
     return hash;
   }
 
+  formatBytes(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
+  async interactiveMode() {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    const question = (prompt) =>
+      new Promise((resolve) => rl.question(prompt, resolve));
+
+    console.clear();
+    this.showBanner();
+
+    console.log(`${COLORS.yellow}Interactive Mode${COLORS.reset}\n`);
+
+    let inputPath = await question(
+      `${COLORS.cyan}Input file (or - for pipe): ${COLORS.reset}`
+    );
+    inputPath = inputPath.trim() || inputPath;
+
+    if (inputPath === "-") {
+      console.log(
+        `${COLORS.yellow}Paste your code (Ctrl+D when done):${COLORS.reset}`
+      );
+      let code = "";
+      rl.on("line", (line) => {
+        code += line + "\n";
+      });
+
+      setTimeout(async () => {
+        rl.close();
+        const result = deobfuscateSnippet(code);
+        console.log("\n" + result.code);
+      }, 100);
+      return;
+    }
+
+    if (!fs.existsSync(inputPath)) {
+      this.log(`File not found: ${inputPath}`, "error");
+      process.exit(1);
+    }
+
+    let outputPath = await question(
+      `${COLORS.cyan}Output file (Enter for auto): ${COLORS.reset}`
+    );
+    outputPath =
+      outputPath.trim() || inputPath.replace(/\.js$/, ".deobfuscated.js");
+
+    this.processFile(inputPath, outputPath);
+  }
+
   run(args = process.argv.slice(2)) {
+    if (args.length === 0) {
+      this.showBanner();
+      this.showHelp();
+      process.exit(0);
+    }
+
     this.parseArgs(args);
 
     const inputPath = this.options.input || this.options.positional[0];

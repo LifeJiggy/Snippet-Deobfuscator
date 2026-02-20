@@ -5,7 +5,7 @@ const t = require("@babel/types");
 class StyleRules {
   constructor() {
     this.name = "StyleRules";
-    this.version = "1.0.0";
+    this.version = "3.0.0";
     this.violations = [];
     this.sourceCode = "";
     this.lines = [];

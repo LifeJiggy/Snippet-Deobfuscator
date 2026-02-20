@@ -656,4 +656,281 @@ function suggestNames(ast, patterns) {
   return suggestions;
 }
 
-module.exports = { suggestNames };
+function suggestNamesFromContext(ast) {
+  const contextMap = new Map();
+
+  traverse(ast, {
+    FunctionDeclaration(path) {
+      const params = path.node.params.map((p) => p.name).filter(Boolean);
+      const body = path.get("body");
+
+      // Analyze function body to understand purpose
+      let hasReturn = false;
+      let hasThrow = false;
+      let hasAsync = path.node.async;
+      let returnType = null;
+
+      path.traverse({
+        ReturnStatement(returnPath) {
+          hasReturn = true;
+          const arg = returnPath.node.argument;
+          if (arg) {
+            if (arg.type === "Identifier") returnType = "identifier";
+            else if (arg.type === "ObjectExpression") returnType = "object";
+            else if (arg.type === "ArrayExpression") returnType = "array";
+            else if (arg.type === "CallExpression") returnType = "functionCall";
+            else if (arg.type === "ConditionalExpression")
+              returnType = "conditional";
+          }
+        },
+        ThrowStatement() {
+          hasThrow = true;
+        },
+      });
+
+      if (path.node.id?.name) {
+        contextMap.set(path.node.id.name, {
+          params,
+          hasReturn,
+          hasThrow,
+          isAsync: hasAsync,
+          returnType,
+        });
+      }
+    },
+  });
+
+  return contextMap;
+}
+
+function suggestNamesFromUsage(ast) {
+  const usageMap = new Map();
+
+  traverse(ast, {
+    Identifier(path) {
+      const name = path.node.name;
+      const parent = path.parent;
+
+      if (!usageMap.has(name)) {
+        usageMap.set(name, {
+          readCount: 0,
+          writeCount: 0,
+          contexts: [],
+        });
+      }
+
+      const info = usageMap.get(name);
+
+      // Check if being assigned to
+      if (
+        parent.type === "AssignmentExpression" &&
+        (parent.left === path.node ||
+          (parent.left?.type === "Identifier" && parent.left.name === name))
+      ) {
+        info.writeCount++;
+      } else {
+        info.readCount++;
+      }
+
+      // Track context
+      const grandparent = path.parent?.parent;
+      if (grandparent) {
+        info.contexts.push(grandparent.type);
+      }
+    },
+  });
+
+  return usageMap;
+}
+
+function inferTypesFromAST(ast) {
+  const typeInferences = new Map();
+
+  traverse(ast, {
+    VariableDeclarator(path) {
+      const name = path.node.id?.name;
+      if (!name) return;
+
+      const init = path.node.init;
+      if (!init) return;
+
+      let inferredType = null;
+
+      switch (init.type) {
+        case "StringLiteral":
+        case "TemplateLiteral":
+          inferredType = "string";
+          break;
+        case "NumericLiteral":
+          inferredType = "number";
+          break;
+        case "BooleanLiteral":
+          inferredType = "boolean";
+          break;
+        case "ArrayExpression":
+          inferredType = "array";
+          break;
+        case "ObjectExpression":
+          inferredType = "object";
+          break;
+        case "FunctionExpression":
+        case "ArrowFunctionExpression":
+          inferredType = "function";
+          break;
+        case "CallExpression":
+          inferredType = "callResult";
+          break;
+        case "NewExpression":
+          inferredType = "instance";
+          break;
+        case "RegExpLiteral":
+          inferredType = "regex";
+          break;
+      }
+
+      if (inferredType) {
+        typeInferences.set(name, inferredType);
+      }
+    },
+  });
+
+  return typeInferences;
+}
+
+function suggestNamesV2(ast, patterns) {
+  const suggestions = new Map();
+  const typeInferences = inferTypesFromAST(ast);
+  const contextInfo = suggestNamesFromContext(ast);
+  const usageInfo = suggestNamesFromUsage(ast);
+
+  // Type-based name suggestions
+  const typeBasedNames = {
+    string: [
+      "text",
+      "name",
+      "title",
+      "label",
+      "message",
+      "description",
+      "value",
+      "input",
+      "str",
+    ],
+    number: [
+      "count",
+      "index",
+      "size",
+      "length",
+      "total",
+      "amount",
+      "price",
+      "age",
+      "value",
+      "num",
+    ],
+    boolean: [
+      "isEnabled",
+      "isVisible",
+      "isActive",
+      "isValid",
+      "hasValue",
+      "canEdit",
+      "shouldUpdate",
+      "flag",
+      "enabled",
+    ],
+    array: [
+      "items",
+      "list",
+      "elements",
+      "options",
+      "values",
+      "rows",
+      "data",
+      "results",
+      "entries",
+    ],
+    object: [
+      "config",
+      "settings",
+      "data",
+      "state",
+      "params",
+      "options",
+      "payload",
+      "response",
+      "context",
+    ],
+    function: [
+      "handler",
+      "callback",
+      "action",
+      "func",
+      "method",
+      "listener",
+      "processor",
+      "worker",
+    ],
+    callResult: [
+      "result",
+      "response",
+      "data",
+      "value",
+      "output",
+      "returnValue",
+    ],
+    instance: ["instance", "object", "entity", "model", "item"],
+    regex: ["pattern", "regex", "matcher", "validator"],
+  };
+
+  // Apply type-based suggestions
+  for (const [name, type] of typeInferences) {
+    if (typeBasedNames[type]) {
+      const typeNames = typeBasedNames[type];
+      suggestions.set(
+        name,
+        typeNames[Math.abs(name.charCodeAt(0)) % typeNames.length]
+      );
+    }
+  }
+
+  // Apply usage-based suggestions
+  for (const [name, info] of usageInfo) {
+    if (info.writeCount > 5 && info.readCount === 0) {
+      // Likely a setter
+      suggestions.set(
+        name,
+        `set${name.charAt(0).toUpperCase() + name.slice(1)}`
+      );
+    } else if (info.writeCount === 0 && info.readCount > 5) {
+      // Likely a getter
+      suggestions.set(
+        name,
+        `get${name.charAt(0).toUpperCase() + name.slice(1)}`
+      );
+    } else if (info.contexts.includes("CallExpression")) {
+      // Used as function
+      suggestions.set(name, `${name}Handler`);
+    }
+  }
+
+  // Apply context-based suggestions
+  for (const [name, info] of contextInfo) {
+    if (info.isAsync) {
+      suggestions.set(name, `${name}Async`);
+    }
+    if (info.hasThrow && !info.hasReturn) {
+      suggestions.set(name, `${name}OrThrow`);
+    }
+  }
+
+  return suggestions;
+}
+
+module.exports = {
+  suggestNames,
+  suggestNamesFromContext,
+  suggestNamesFromUsage,
+  inferTypesFromAST,
+  suggestNamesV2,
+};

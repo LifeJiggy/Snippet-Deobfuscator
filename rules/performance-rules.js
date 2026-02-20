@@ -701,31 +701,32 @@ class PerformanceRules {
 
     checkDuplicateCode(path) {
         const functionBodies = new Map();
+        const self = this;
         
         path.traverse({
             FunctionDeclaration(funcPath) {
                 const body = funcPath.node.body;
                 
                 if (t.isBlockStatement(body) && body.body.length > 3) {
-                    const bodyStr = JSON.stringify(this.getSimpleBody(body));
+                    const bodyStr = JSON.stringify(self.getSimpleBody(body));
                     
                     if (functionBodies.has(bodyStr)) {
                         const existing = functionBodies.get(bodyStr);
-                        this.addViolation({
-                            rule: this.rules.bundleSize.duplicateCode.name,
+                        self.addViolation({
+                            rule: self.rules.bundleSize.duplicateCode.name,
                             message: `Potential duplicate function detected`,
-                            severity: this.rules.bundleSize.duplicateCode.severity,
+                            severity: self.rules.bundleSize.duplicateCode.severity,
                             line: funcPath.node.loc ? funcPath.node.loc.start.line : 0,
                             column: funcPath.node.loc ? funcPath.node.loc.start.column : 0,
                             suggestion: `Extract common logic to a shared function (similar to line ${existing})`
                         });
-                        this.statistics.bundleSizeIssues++;
-                        this.statistics.performanceIssues++;
+                        self.statistics.bundleSizeIssues++;
+                        self.statistics.performanceIssues++;
                     } else {
                         functionBodies.set(bodyStr, funcPath.node.loc ? funcPath.node.loc.start.line : 0);
                     }
                 }
-            }.bind(this)
+            }
         });
     }
 

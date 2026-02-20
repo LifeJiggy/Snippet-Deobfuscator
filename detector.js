@@ -1,7 +1,43 @@
 const { default: traverse } = require("@babel/traverse");
 
-function detectFunctionality(ast) {
+function detectFunctionality(ast, code = "") {
   const functionality = [];
+
+  // Analyze imports and requires for better detection
+  const imports = [];
+  const requires = [];
+  traverse(ast, {
+    ImportDeclaration(path) {
+      imports.push(path.node.source.value);
+    },
+    CallExpression(path) {
+      if (path.node.callee.name === "require") {
+        requires.push(path.node.arguments[0]?.value);
+      }
+    },
+  });
+
+  // Detect third-party libraries from imports
+  const detectedLibs = detectLibraries(imports, requires);
+  if (detectedLibs.length > 0) {
+    functionality.push({
+      type: "libraries",
+      description: `Third-party libraries: ${detectedLibs.join(", ")}`,
+      codeSnippet: detectedLibs.join(", "),
+      location: { startLine: 1, endLine: 1 },
+    });
+  }
+
+  // Detect security-related patterns
+  const securityPatterns = detectSecurityPatterns(ast);
+  securityPatterns.forEach((pattern) => {
+    functionality.push({
+      type: "security",
+      description: pattern,
+      codeSnippet: pattern,
+      location: { startLine: 1, endLine: 1 },
+    });
+  });
 
   traverse(ast, {
     CallExpression(path) {
@@ -3419,6 +3455,234 @@ function isAccessibilityFeature(callee) {
   );
 }
 
+function detectLibraries(imports, requires) {
+  const libs = [];
+  const allDeps = [...imports, ...requires].filter(Boolean);
+
+  const libPatterns = {
+    react: ["react", "react-dom", "react-native"],
+    vue: ["vue", "@vue", "nuxt"],
+    angular: ["@angular", "angular"],
+    state: ["redux", "mobx", "zustand", "recoil", "xstate", "jotai"],
+    router: ["react-router", "vue-router", "@angular/router", "wouter"],
+    ui: [
+      "@mui",
+      "material-ui",
+      "antd",
+      "element-ui",
+      "bootstrap",
+      "tailwindcss",
+      "chakra-ui",
+    ],
+    http: ["axios", "fetch", "superagent", "ky", "got", "node-fetch"],
+    utils: ["lodash", "underscore", "ramda", "date-fns", "moment"],
+    testing: ["jest", "mocha", "chai", "@testing-library", "enzyme"],
+    animation: ["framer-motion", "gsap", "animejs", "popmotion"],
+    charts: ["chart.js", "d3", "recharts", "highcharts", "visx"],
+    forms: ["formik", "react-hook-form", "yup", "zod"],
+    graphql: ["graphql", "apollo", "urql", "@apollo"],
+    websocket: ["socket.io", "ws", "sockjs"],
+    i18n: ["i18next", "react-intl", "vue-i18n", "@lingui"],
+    editor: ["quill", "draft-js", "slate", "monaco", "ace"],
+    pdf: ["pdfjs", "jspdf", "react-pdf", "pdfmake"],
+    excel: ["xlsx", "exceljs", "papaparse", "sheetjs"],
+    icons: ["@heroicons", "lucide-react", "font-awesome", "material-icons"],
+    storage: ["localforage", "idb", "dexie", "pouchdb"],
+  };
+
+  for (const [category, patterns] of Object.entries(libPatterns)) {
+    for (const dep of allDeps) {
+      if (patterns.some((p) => dep.includes(p))) {
+        if (!libs.includes(dep)) libs.push(dep);
+      }
+    }
+  }
+
+  return libs;
+}
+
+function detectSecurityPatterns(ast) {
+  const patterns = [];
+
+  traverse(ast, {
+    CallExpression(path) {
+      const callee = path.node.callee;
+      const code = path.get("callee").toString();
+
+      // Detect eval usage
+      if (code === "eval" || code === "Function") {
+        patterns.push("Dangerous code execution: eval/Function");
+      }
+
+      // Detect document.write
+      if (code === "document.write") {
+        patterns.push("document.write usage (deprecated)");
+      }
+
+      // Detect innerHTML assignments
+      if (path.parentPath?.node?.type === "AssignmentExpression") {
+        const left = path.parentPath.node.left;
+        if (
+          left?.property?.name === "innerHTML" ||
+          left?.property?.name === "outerHTML"
+        ) {
+          patterns.push("Dangerous innerHTML assignment");
+        }
+      }
+
+      // Detect crypto usage
+      if (
+        callee.object?.name === "crypto" ||
+        callee.property?.name === "subtle"
+      ) {
+        patterns.push("Web Crypto API usage");
+      }
+    },
+
+    StringLiteral(path) {
+      const value = path.node.value;
+      // Detect potential secrets/keys
+      if (/^[A-Za-z0-9+/]{32,}={0,2}$/.test(value) && !value.includes(" ")) {
+        patterns.push("Possible base64 encoded secret");
+      }
+      if (
+        /^eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(value)
+      ) {
+        patterns.push("Possible JWT token");
+      }
+    },
+  });
+
+  return [...new Set(patterns)];
+}
+
+function detectCodeQuality(ast) {
+  const issues = [];
+
+  traverse(ast, {
+    FunctionDeclaration(path) {
+      // Detect very long functions
+      const body = path.get("body");
+      if (body.isBlockStatement()) {
+        const statements = body.node.body.length;
+        if (statements > 50) {
+          issues.push({
+            type: "complexity",
+            severity: "warning",
+            message: `Large function '${
+              path.node.id?.name || "anonymous"
+            }' with ${statements} statements`,
+            line: path.node.loc?.start?.line,
+          });
+        }
+      }
+    },
+
+    IfStatement(path) {
+      // Detect deeply nested conditionals
+      let depth = 0;
+      let current = path;
+      while (current.parentPath) {
+        if (current.parentPath.node.type === "IfStatement") {
+          depth++;
+        }
+        current = parentPath;
+      }
+      if (depth > 3) {
+        issues.push({
+          type: "nesting",
+          severity: "warning",
+          message: "Deeply nested conditionals detected",
+          line: path.node.loc?.start?.line,
+        });
+      }
+    },
+  });
+
+  return issues;
+}
+
+function detectReactSpecific(ast) {
+  const features = [];
+
+  traverse(ast, {
+    CallExpression(path) {
+      const callee = path.node.callee;
+
+      // React Hooks
+      if (callee.name?.startsWith("use")) {
+        features.push(`React Hook: ${callee.name}`);
+      }
+
+      // JSX
+      if (path.node.arguments?.some((arg) => arg.type === "JSXElement")) {
+        features.push("JSX syntax");
+      }
+
+      // React.createElement
+      if (
+        callee.object?.name === "React" &&
+        callee.property?.name === "createElement"
+      ) {
+        features.push("React.createElement");
+      }
+    },
+
+    VariableDeclarator(path) {
+      // Detect component definitions
+      if (path.node.id?.name?.match(/^[A-Z][a-zA-Z]*$/)) {
+        const init = path.node.init;
+        if (
+          init?.type === "FunctionExpression" ||
+          init?.type === "ArrowFunctionExpression"
+        ) {
+          features.push(`Component: ${path.node.id.name}`);
+        }
+      }
+    },
+  });
+
+  return features;
+}
+
+function detectPerformancePatterns(ast) {
+  const patterns = [];
+
+  traverse(ast, {
+    CallExpression(path) {
+      const code = path.get("callee").toString();
+
+      // Debounce/Throttle
+      if (code.includes("debounce") || code.includes("throttle")) {
+        patterns.push("Debounce/Throttle optimization");
+      }
+
+      // Memoization
+      if (code.includes("memo") || code.includes("cache")) {
+        patterns.push("Memoization/Caching");
+      }
+
+      // Lazy loading
+      if (code.includes("lazy") || code.includes("dynamic")) {
+        patterns.push("Lazy loading");
+      }
+    },
+
+    MemberExpression(path) {
+      // Array operations that could be optimized
+      const code = path.toString();
+      if (
+        code.includes(".map(") &&
+        path.parentPath?.node?.type === "ArrayExpression"
+      ) {
+        patterns.push("Array.map() - consider optimization");
+      }
+    },
+  });
+
+  return patterns;
+}
+
 // Modify the addFunctionality function to include code snippet and location
 function addFunctionality(functionality, type, description, path) {
   if (!functionality.some((f) => f.type === type)) {
@@ -3437,4 +3701,9 @@ function addFunctionality(functionality, type, description, path) {
 module.exports = {
   detectFunctionality,
   printDetectedFunctionality,
+  detectLibraries,
+  detectSecurityPatterns,
+  detectCodeQuality,
+  detectReactSpecific,
+  detectPerformancePatterns,
 };

@@ -5,7 +5,7 @@ const t = require("@babel/types");
 class PatternRules {
   constructor() {
     this.name = "PatternRules";
-    this.version = "1.0.0";
+    this.version = "3.0.0";
     this.violations = [];
     this.statistics = {
       totalChecks: 0,

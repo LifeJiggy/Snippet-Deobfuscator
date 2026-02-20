@@ -7,6 +7,10 @@ const prettier = require("prettier");
 const {
   applyPostProcessing,
   detectObfuscationType,
+  stringDecryption,
+  deadCodeElimination,
+  webpackReconstructor,
+  codeCleanup,
 } = require("./post_processing");
 
 // Lazily compute line count to avoid referencing undefined 'code' at module load
@@ -31,6 +35,8 @@ const {
   frameworkDetector,
   minifiedCodeHandler,
   controlFlowAnalyzer,
+  constantFolder,
+  stringArrayDetector,
   stringDecryptor,
   applyReactEventSystemRenaming,
   applyAdvancedReactRenaming,
@@ -41,8 +47,19 @@ const {
   applyModuleIdCallAnnotation,
   annotateModuleFunctionParams,
 } = require("./patterns");
-const { suggestNames } = require("./renamer");
-const { detectFunctionality } = require("./detector");
+const { suggestNames, suggestNamesV2 } = require("./renamer");
+const {
+  detectFunctionality,
+  detectSecurityPatterns,
+  detectReactSpecific,
+  detectPerformancePatterns,
+} = require("./detector");
+const {
+  analyzeBundleStructure,
+  detectMinificationLevel,
+  extractExports,
+  extractImports,
+} = require("./module_analyzer");
 
 // --- Utility Functions (Defined first for use in deobfuscateSnippet) ---
 
@@ -241,7 +258,9 @@ function deobfuscateSnippet(code) {
     // --- Debug string issues before processing ---
     const stringIssues = debugStringIssues(code);
     if (stringIssues.length > 0) {
-      console.warn(`Warning: Found ${stringIssues.length} potential string issues in input code`);
+      console.warn(
+        `Warning: Found ${stringIssues.length} potential string issues in input code`
+      );
     }
 
     // --- Apply preprocessing ---
@@ -331,7 +350,9 @@ function deobfuscateSnippet(code) {
         detectedFrameworks.push("vue");
       }
     }
-    console.log(`DEBUG: Detected frameworks: ${detectedFrameworks.join(", ") || "None"}`);
+    console.log(
+      `DEBUG: Detected frameworks: ${detectedFrameworks.join(", ") || "None"}`
+    );
 
     // --- 2. Handle minification before parsing ---
     console.log("DEBUG: Handling minification...");
@@ -342,7 +363,9 @@ function deobfuscateSnippet(code) {
     } else {
       processedCode = minifiedCodeHandler.beautifyCode(code);
       processedCode = minifiedCodeHandler.decompressCode(processedCode);
-      console.log(`DEBUG: Code processed - original: ${code.length}, processed: ${processedCode.length}`);
+      console.log(
+        `DEBUG: Code processed - original: ${code.length}, processed: ${processedCode.length}`
+      );
     }
 
     // --- 3. Parse the beautified/decompressed code ---
@@ -390,7 +413,38 @@ function deobfuscateSnippet(code) {
       console.log("DEBUG: Fallback parsing successful");
     }
 
-    // --- 4. Analyze control flow ---
+    // --- 4. Constant Folding ---
+    if (!isLarge) {
+      console.log("DEBUG: Applying constant folding...");
+      let folded = true;
+      let iterations = 0;
+      while (folded && iterations < 5) {
+        folded = constantFolder.foldConstants(ast);
+        iterations++;
+      }
+      if (iterations > 1) {
+        console.log(
+          `DEBUG: Constant folding completed in ${iterations} iterations`
+        );
+      }
+    }
+
+    // --- 5. String Array Detection ---
+    if (!isLarge) {
+      console.log("DEBUG: Detecting string arrays...");
+      const stringArrays = stringArrayDetector.findArrays(ast);
+      const stringFuncs = stringArrayDetector.findStringFunctions(ast);
+      if (stringArrays.length > 0) {
+        console.log(`DEBUG: Found ${stringArrays.length} string arrays`);
+      }
+      if (stringFuncs.length > 0) {
+        console.log(
+          `DEBUG: Found ${stringFuncs.length} string decryption functions`
+        );
+      }
+    }
+
+    // --- 7. Analyze control flow ---
     console.log("DEBUG: Analyzing control flow...");
     const branches = controlFlowAnalyzer.analyzeBranches(ast);
     const flow = controlFlowAnalyzer.reconstructControlFlow(ast);
@@ -399,7 +453,7 @@ function deobfuscateSnippet(code) {
       branches.length
     );
 
-    // --- 5. Decrypt strings ---
+    // --- 8. Decrypt strings ---
     console.log("DEBUG: Decrypting strings...");
     let stringsDecrypted = 0;
     traverse(ast, {
@@ -418,7 +472,10 @@ function deobfuscateSnippet(code) {
               console.log(
                 `DEBUG (String Decryption): Line ${
                   path.node.loc?.start?.line || "?"
-                } - ${originalValue.substring(0, 30)}... → ${decrypted.substring(0, 30)}...`
+                } - ${originalValue.substring(
+                  0,
+                  30
+                )}... → ${decrypted.substring(0, 30)}...`
               );
             }
             // --- Add a check here ---
@@ -454,36 +511,38 @@ function deobfuscateSnippet(code) {
       },
       // Add NumericLiteral, TemplateLiteral if your decryptor handles them
     });
-    console.log(`DEBUG: String decryption completed - ${stringsDecrypted} strings processed`);
+    console.log(
+      `DEBUG: String decryption completed - ${stringsDecrypted} strings processed`
+    );
     // Regenerate code after string decryption for subsequent steps
     processedCode = generate(ast).code;
 
-    // --- 6. Recognize patterns ---
+    // --- 9. Recognize patterns ---
     console.log("DEBUG: Recognizing patterns...");
     const patterns = recognizePatterns(ast, processedCode);
     console.log("DEBUG: Patterns recognized:", patterns.length);
 
-    // --- 7. Detect functionality ---
+    // --- 10. Detect functionality ---
     console.log("DEBUG: Detecting functionality...");
     const functionality = detectFunctionality(ast);
     console.log("DEBUG: Functionality detected:", functionality.length);
 
-    // --- 8. Suggest meaningful names ---
+    // --- 11. Suggest meaningful names ---
     console.log("DEBUG: Suggesting names...");
     const nameSuggestions = suggestNames(ast, patterns);
     console.log("DEBUG: Name suggestions made:", nameSuggestions.size);
 
-    // --- 9. Apply the general renaming ---
+    // --- 12. Apply the general renaming ---
     console.log("DEBUG: Applying general renaming...");
     const renamedAst = applyRenaming(ast, nameSuggestions);
     console.log("DEBUG: General renaming applied.");
 
-    // --- 10. Generate intermediate code ---
+    // --- 13. Generate intermediate code ---
     console.log("DEBUG: Generating intermediate code...");
     let result = generate(renamedAst).code;
     console.log("DEBUG: Intermediate code generated, length:", result.length);
 
-    // --- 11. Apply framework-specific transformations ---
+    // --- 14. Apply framework-specific transformations ---
     console.log("DEBUG: Applying framework-specific rules...");
     result = frameworkDetector.applyFrameworkSpecificRules(
       result,
@@ -541,7 +600,8 @@ function deobfuscateSnippet(code) {
     const webpackResult = applyModuleContextRenaming(result, { patterns });
     result = webpackResult.code;
     allRenames = [...allRenames, ...(webpackResult.renames || [])];
-    console.log("DEBUG: Webpack module renaming applied."); // --- 13. Apply post-processing for known patterns ---
+    console.log("DEBUG: Webpack module renaming applied.");
+    // --- 16. Apply post-processing for known patterns ---
     console.log("DEBUG: Applying post-processing for known patterns...");
 
     // Detect obfuscation type for specialized handling
@@ -573,105 +633,105 @@ function deobfuscateSnippet(code) {
     // Handle common obfuscation patterns with Unicode replacement characters
     const unicodeReplacements = {
       // Single character replacements
-      '\uFFFD': '"unknown"',
+      "\uFFFD": '"unknown"',
 
       // Common 2-character patterns
-      '\uFFFD\uFFFD': '"center"',
+      "\uFFFD\uFFFD": '"center"',
 
       // Common 3-character patterns
-      '\uFFFD\uFFFD\uFFFD': '"left"',
+      "\uFFFD\uFFFD\uFFFD": '"left"',
 
       // Specific patterns that appear in the obfuscated code
-      '\uFFFDw\uFFFD': '"function"',
-      '\uFFFD\uFFFD\u0736': 'typeof',
-      '\uFFFD+\uFFFD': '""',
-      '\uFFFD\u0725': '"style"',
-      '\uFFFD*^': '"type"',
-      '\uFFFD\u00A1\uFFFD': '"top"',
-      '\uFFFD\uFFFD\u00A2': '"bottom"',
-      '\u00A3\uFFFD\uFFFD': '"start"',
-      '\uFFFD\uFFFD\uFFFD\u00A4': '"end"',
-      '\u00A5\uFFFD\uFFFD': '"baseline"',
-      '\uFFFD\uFFFD\u00A6\uFFFD': '"stretch"',
-      '\u00A7\uFFFD\uFFFD': '"space-between"',
-      '\uFFFD\uFFFD\uFFFD\u00A8': '"space-around"',
-      '\u00A9\uFFFD\uFFFD': '"space-evenly"',
-      '\uFFFD\uFFFD\u00AA\uFFFD': '"wrap"',
-      '\u00AB\uFFFD\uFFFD': '"nowrap"',
-      '\uFFFD\uFFFD\uFFFD\u00AC': '"reverse"',
-      '\u00AD\uFFFD\uFFFD': '"column"',
-      '\uFFFD\uFFFD\u00AE\uFFFD': '"row"',
-      '\u00AF\uFFFD\uFFFD': '"solid"',
-      '\uFFFD\uFFFD\uFFFD\u00B0': '"dashed"',
-      '\u00B1\uFFFD\uFFFD': '"dotted"',
-      '\uFFFD\uFFFD\u00B2\uFFFD': '"double"',
-      '\u00B3\uFFFD\uFFFD': '"groove"',
-      '\uFFFD\uFFFD\uFFFD\u00B4': '"ridge"',
-      '\u00B5\uFFFD\uFFFD': '"inset"',
-      '\uFFFD\uFFFD\u00B6\uFFFD': '"outset"',
-      '\u00B7\uFFFD\uFFFD': '"none"',
-      '\uFFFD\uFFFD\uFFFD\u00B8': '"inherit"',
-      '\u00B9\uFFFD\uFFFD': '"initial"',
-      '\uFFFD\uFFFD\u00BA\uFFFD': '"unset"',
-      '\u00BB\uFFFD\uFFFD': '"revert"',
-      '\uFFFD\uFFFD\uFFFD\u00BC': '"contain"',
-      '\u00BD\uFFFD\uFFFD': '"cover"',
-      '\uFFFD\uFFFD\u00BE\uFFFD': '"fill"',
-      '\u00BF\uFFFD\uFFFD': '"scale-down"',
-      '\uFFFD\uFFFD\uFFFD\u00C0': '"repeat"',
-      '\u00C1\uFFFD\uFFFD': '"no-repeat"',
-      '\uFFFD\uFFFD\u00C2\uFFFD': '"repeat-x"',
-      '\u00C3\uFFFD\uFFFD': '"repeat-y"',
-      '\uFFFD\uFFFD\uFFFD\u00C4': '"space"',
-      '\u00C5\uFFFD\uFFFD': '"round"',
-      '\uFFFD\uFFFD\u00C6\uFFFD': '"local"',
-      '\u00C7\uFFFD\uFFFD': '"scroll"',
-      '\uFFFD\uFFFD\uFFFD\u00C8': '"fixed"',
-      '\uFFFDb\uFFFD': '"auto"',
+      "\uFFFDw\uFFFD": '"function"',
+      "\uFFFD\uFFFD\u0736": "typeof",
+      "\uFFFD+\uFFFD": '""',
+      "\uFFFD\u0725": '"style"',
+      "\uFFFD*^": '"type"',
+      "\uFFFD\u00A1\uFFFD": '"top"',
+      "\uFFFD\uFFFD\u00A2": '"bottom"',
+      "\u00A3\uFFFD\uFFFD": '"start"',
+      "\uFFFD\uFFFD\uFFFD\u00A4": '"end"',
+      "\u00A5\uFFFD\uFFFD": '"baseline"',
+      "\uFFFD\uFFFD\u00A6\uFFFD": '"stretch"',
+      "\u00A7\uFFFD\uFFFD": '"space-between"',
+      "\uFFFD\uFFFD\uFFFD\u00A8": '"space-around"',
+      "\u00A9\uFFFD\uFFFD": '"space-evenly"',
+      "\uFFFD\uFFFD\u00AA\uFFFD": '"wrap"',
+      "\u00AB\uFFFD\uFFFD": '"nowrap"',
+      "\uFFFD\uFFFD\uFFFD\u00AC": '"reverse"',
+      "\u00AD\uFFFD\uFFFD": '"column"',
+      "\uFFFD\uFFFD\u00AE\uFFFD": '"row"',
+      "\u00AF\uFFFD\uFFFD": '"solid"',
+      "\uFFFD\uFFFD\uFFFD\u00B0": '"dashed"',
+      "\u00B1\uFFFD\uFFFD": '"dotted"',
+      "\uFFFD\uFFFD\u00B2\uFFFD": '"double"',
+      "\u00B3\uFFFD\uFFFD": '"groove"',
+      "\uFFFD\uFFFD\uFFFD\u00B4": '"ridge"',
+      "\u00B5\uFFFD\uFFFD": '"inset"',
+      "\uFFFD\uFFFD\u00B6\uFFFD": '"outset"',
+      "\u00B7\uFFFD\uFFFD": '"none"',
+      "\uFFFD\uFFFD\uFFFD\u00B8": '"inherit"',
+      "\u00B9\uFFFD\uFFFD": '"initial"',
+      "\uFFFD\uFFFD\u00BA\uFFFD": '"unset"',
+      "\u00BB\uFFFD\uFFFD": '"revert"',
+      "\uFFFD\uFFFD\uFFFD\u00BC": '"contain"',
+      "\u00BD\uFFFD\uFFFD": '"cover"',
+      "\uFFFD\uFFFD\u00BE\uFFFD": '"fill"',
+      "\u00BF\uFFFD\uFFFD": '"scale-down"',
+      "\uFFFD\uFFFD\uFFFD\u00C0": '"repeat"',
+      "\u00C1\uFFFD\uFFFD": '"no-repeat"',
+      "\uFFFD\uFFFD\u00C2\uFFFD": '"repeat-x"',
+      "\u00C3\uFFFD\uFFFD": '"repeat-y"',
+      "\uFFFD\uFFFD\uFFFD\u00C4": '"space"',
+      "\u00C5\uFFFD\uFFFD": '"round"',
+      "\uFFFD\uFFFD\u00C6\uFFFD": '"local"',
+      "\u00C7\uFFFD\uFFFD": '"scroll"',
+      "\uFFFD\uFFFD\uFFFD\u00C8": '"fixed"',
+      "\uFFFDb\uFFFD": '"auto"',
 
       // Colors
-      'u\uFFFD\uFFFD': '"red"',
-      '\uFFFDx\uFFFD': '"blue"',
-      'y\uFFFD\uFFFD': '"yellow"',
-      'v\uFFFD\uFFFD': '"purple"',
-      't\uFFFD\uFFFD': '"black"',
-      'r\uFFFD\uFFFD': '"transparent"',
-      '\uFFFD\uFFFD\uFFFDj\uFFFD': '"primary"',
-      'n\uFFFDm\uFFFD': '"right"',
-      '\uFFFD\uFFFD\uFFFDz': '"green"',
-      '\uFFFD\uFFFDw\uFFFD': '"orange"',
-      '\uFFFD\uFFFD\uFFFDq': '"gray"',
-      '\uFFFD\uFFFD\uFFFDs': '"white"',
+      "u\uFFFD\uFFFD": '"red"',
+      "\uFFFDx\uFFFD": '"blue"',
+      "y\uFFFD\uFFFD": '"yellow"',
+      "v\uFFFD\uFFFD": '"purple"',
+      "t\uFFFD\uFFFD": '"black"',
+      "r\uFFFD\uFFFD": '"transparent"',
+      "\uFFFD\uFFFD\uFFFDj\uFFFD": '"primary"',
+      "n\uFFFDm\uFFFD": '"right"',
+      "\uFFFD\uFFFD\uFFFDz": '"green"',
+      "\uFFFD\uFFFDw\uFFFD": '"orange"',
+      "\uFFFD\uFFFD\uFFFDq": '"gray"',
+      "\uFFFD\uFFFD\uFFFDs": '"white"',
 
       // Layout and display
-      '\uFFFD\uFFFD\uFFFDn': '"inline"',
-      '\uFFFD\uFFFDl\uFFFD': '"flex"',
-      '\uFFFDp\uFFFD': '"block"',
-      'k\uFFFD\uFFFD': '"grid"',
-      'g\uFFFD\uFFFD': '"relative"',
-      'e\uFFFD\uFFFD': '"sticky"',
-      'c\uFFFD\uFFFD': '"hidden"',
-      '\uFFFD\uFFFD\uFFFDh': '"absolute"',
-      '\uFFFD\uFFFDf\uFFFD': '"fixed"',
-      '\uFFFD\uFFFD\uFFFDd': '"static"',
-      '\uFFFD\uFFFDa\uFFFD': '"visible"',
+      "\uFFFD\uFFFD\uFFFDn": '"inline"',
+      "\uFFFD\uFFFDl\uFFFD": '"flex"',
+      "\uFFFDp\uFFFD": '"block"',
+      "k\uFFFD\uFFFD": '"grid"',
+      "g\uFFFD\uFFFD": '"relative"',
+      "e\uFFFD\uFFFD": '"sticky"',
+      "c\uFFFD\uFFFD": '"hidden"',
+      "\uFFFD\uFFFD\uFFFDh": '"absolute"',
+      "\uFFFD\uFFFDf\uFFFD": '"fixed"',
+      "\uFFFD\uFFFD\uFFFDd": '"static"',
+      "\uFFFD\uFFFDa\uFFFD": '"visible"',
 
       // Sizes
-      '\uFFFD1\uFFFD': '"small"',
-      '\uFFFD\uFFFD2\uFFFD': '"medium"',
-      '3\uFFFD\uFFFD': '"large"',
-      '\uFFFD\uFFFD\uFFFD4': '"extra-large"',
-      '5\uFFFD\uFFFD': '"xs"',
-      '\uFFFD\uFFFD6\uFFFD': '"sm"',
-      '7\uFFFD\uFFFD': '"md"',
-      '\uFFFD\uFFFD\uFFFD8': '"lg"',
-      '9\uFFFD\uFFFD': '"xl"',
-      '\uFFFD\uFFFD0\uFFFD': '"2xl"',
+      "\uFFFD1\uFFFD": '"small"',
+      "\uFFFD\uFFFD2\uFFFD": '"medium"',
+      "3\uFFFD\uFFFD": '"large"',
+      "\uFFFD\uFFFD\uFFFD4": '"extra-large"',
+      "5\uFFFD\uFFFD": '"xs"',
+      "\uFFFD\uFFFD6\uFFFD": '"sm"',
+      "7\uFFFD\uFFFD": '"md"',
+      "\uFFFD\uFFFD\uFFFD8": '"lg"',
+      "9\uFFFD\uFFFD": '"xl"',
+      "\uFFFD\uFFFD0\uFFFD": '"2xl"',
 
       // Special patterns for apostrophe-based obfuscation
       // These patterns use ROT13-like transformations
-      '\uFFFD\uFFFD\uFFFD': '"left"',  // fallback for 3-char patterns
-      '\uFFFD\uFFFD': '"center"',     // fallback for 2-char patterns
+      "\uFFFD\uFFFD\uFFFD": '"left"', // fallback for 3-char patterns
+      "\uFFFD\uFFFD": '"center"', // fallback for 2-char patterns
     };
 
     // Sort by length descending to handle longer patterns first
@@ -682,22 +742,28 @@ function deobfuscateSnippet(code) {
     // Apply replacements
     for (const [pattern, replacement] of sortedReplacements) {
       // Use a more robust replacement that handles the pattern as literal text
-      const regex = new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      const regex = new RegExp(
+        pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+        "g"
+      );
       result = result.replace(regex, replacement);
     }
 
     // Handle apostrophe-based obfuscation patterns (like "JCQ'dhiartnhi='Dfus")
-    result = result.replace(/'([a-zA-Z]+)'([a-zA-Z]+)'([a-zA-Z]+)'/g, (match, p1, p2, p3) => {
-      try {
-        // Try ROT13 decoding on the obfuscated parts
-        const decoded1 = rot13Decode(p1);
-        const decoded2 = rot13Decode(p2);
-        const decoded3 = rot13Decode(p3);
-        return `"${decoded1}${decoded2}${decoded3}"`;
-      } catch (e) {
-        return match; // Return original if decoding fails
+    result = result.replace(
+      /'([a-zA-Z]+)'([a-zA-Z]+)'([a-zA-Z]+)'/g,
+      (match, p1, p2, p3) => {
+        try {
+          // Try ROT13 decoding on the obfuscated parts
+          const decoded1 = rot13Decode(p1);
+          const decoded2 = rot13Decode(p2);
+          const decoded3 = rot13Decode(p3);
+          return `"${decoded1}${decoded2}${decoded3}"`;
+        } catch (e) {
+          return match; // Return original if decoding fails
+        }
       }
-    });
+    );
 
     // Handle simpler apostrophe patterns
     result = result.replace(/([a-zA-Z]+)'([a-zA-Z]+)/g, (match, p1, p2) => {
@@ -719,7 +785,7 @@ function deobfuscateSnippet(code) {
 
     console.log("DEBUG: Post-processing complete.");
 
-    // --- 14. Format the final code ---
+    // --- 17. Format the final code ---
     console.log("DEBUG: Formatting final code...");
     result = formatCode(result);
     console.log("DEBUG: Final code formatted.");
