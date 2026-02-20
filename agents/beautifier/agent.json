@@ -1,0 +1,383 @@
+{
+  "name": "beautifier-agent",
+  "version": "3.0.0",
+  "description": "Production-grade specialized agent for code beautification, formatting, and normalization. Supports multi-language formatting including JavaScript, TypeScript, JSX, TSX, JSON, CSS, HTML, and Markdown with Prettier integration and robust fallback mechanisms for real-world web applications.",
+  "type": "agent",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator"
+  },
+  "bugs": {
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator/issues"
+  },
+  "homepage": "https://github.com/snippet-deobfuscator/snippet-deobfuscator#readme",
+  "keywords": [
+    "beautifier",
+    "formatter",
+    "formatting",
+    "code-format",
+    "prettier",
+    "indentation",
+    "whitespace",
+    "pretty-print",
+    "javascript",
+    "typescript",
+    "jsx",
+    "tsx",
+    "json",
+    "css",
+    "html",
+    "markdown",
+    "deobfuscation",
+    "ast",
+    "react",
+    "vue",
+    "angular",
+    "nodejs"
+  ],
+  "capabilities": [
+    "code-beautification",
+    "formatting",
+    "indentation",
+    "whitespace-normalization",
+    "comment-preservation",
+    "syntax-correction",
+    "pretty-printing",
+    "code-structure",
+    "multi-language-support",
+    "language-detection",
+    "prettier-integration",
+    "fallback-formatting",
+    "custom-rules",
+    "section-formatting",
+    "line-width-enforcement",
+    "quote-normalization",
+    "brace-styling",
+    "semicolon-handling",
+    "trailing-comma",
+    "arrow-function-formatting",
+    "jsx-formatting",
+    "typescript-formatting",
+    "json-formatting",
+    "css-formatting",
+    "html-formatting",
+    "markdown-formatting"
+  ],
+  "dependencies": [
+    "prettier",
+    "@babel/parser",
+    "@babel/traverse",
+    "@babel/generator"
+  ],
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "entry": "index.js",
+  "priority": 6,
+  "timeout": 60000,
+  "retries": 2,
+  "formatting": {
+    "indentation": {
+      "enabled": true,
+      "description": "Configure code indentation",
+      "options": {
+        "tabWidth": 2,
+        "useTabs": false
+      }
+    },
+    "quotes": {
+      "enabled": true,
+      "description": "Configure quote style",
+      "options": {
+        "singleQuote": true,
+        "quoteProps": "as-needed"
+      }
+    },
+    "semicolons": {
+      "enabled": true,
+      "description": "Configure semicolon handling",
+      "options": {
+        "semi": true,
+        "noSemiBeforeComments": false
+      }
+    },
+    "trailingCommas": {
+      "enabled": true,
+      "description": "Configure trailing commas",
+      "options": {
+        "trailingComma": "es5"
+      }
+    },
+    "brackets": {
+      "enabled": true,
+      "description": "Configure bracket spacing",
+      "options": {
+        "bracketSpacing": true,
+        "bracketSameLine": false
+      }
+    },
+    "arrowFunctions": {
+      "enabled": true,
+      "description": "Configure arrow function formatting",
+      "options": {
+        "arrowParens": "always"
+      }
+    },
+    "lineWidth": {
+      "enabled": true,
+      "description": "Configure line width",
+      "options": {
+        "printWidth": 100,
+        "proseWrap": "preserve"
+      }
+    },
+    "endOfLine": {
+      "enabled": true,
+      "description": "Configure line endings",
+      "options": {
+        "endOfLine": "lf"
+      }
+    }
+  },
+  "languageSupport": {
+    "javascript": {
+      "extensions": [".js", ".mjs", ".cjs"],
+      "parser": "babel",
+      "enabled": true
+    },
+    "typescript": {
+      "extensions": [".ts", ".mts", ".cts"],
+      "parser": "typescript",
+      "enabled": true
+    },
+    "jsx": {
+      "extensions": [".jsx"],
+      "parser": "babel",
+      "plugins": ["jsx"],
+      "enabled": true
+    },
+    "tsx": {
+      "extensions": [".tsx"],
+      "parser": "typescript",
+      "plugins": ["jsx"],
+      "enabled": true
+    },
+    "json": {
+      "extensions": [".json"],
+      "parser": "json",
+      "enabled": true
+    },
+    "css": {
+      "extensions": [".css", ".scss", ".sass", ".less"],
+      "parser": "css",
+      "enabled": true
+    },
+    "html": {
+      "extensions": [".html", ".htm"],
+      "parser": "html",
+      "enabled": true
+    },
+    "markdown": {
+      "extensions": [".md", ".markdown"],
+      "parser": "markdown",
+      "enabled": true
+    }
+  },
+  "configuration": {
+    "tabWidth": {
+      "type": "number",
+      "default": 2,
+      "description": "Number of spaces per indentation level"
+    },
+    "useTabs": {
+      "type": "boolean",
+      "default": false,
+      "description": "Use tabs instead of spaces"
+    },
+    "semi": {
+      "type": "boolean",
+      "default": true,
+      "description": "Add semicolons at end of statements"
+    },
+    "singleQuote": {
+      "type": "boolean",
+      "default": true,
+      "description": "Use single quotes instead of double"
+    },
+    "trailingComma": {
+      "type": "string",
+      "default": "es5",
+      "description": "Trailing comma style (es5, all, none)"
+    },
+    "bracketSpacing": {
+      "type": "boolean",
+      "default": true,
+      "description": "Add spaces between braces in objects"
+    },
+    "arrowParens": {
+      "type": "string",
+      "default": "always",
+      "description": "Include parens in arrow functions"
+    },
+    "endOfLine": {
+      "type": "string",
+      "default": "lf",
+      "description": "Line ending style (lf, cr, crlf)"
+    },
+    "printWidth": {
+      "type": "number",
+      "default": 100,
+      "description": "Maximum line length"
+    },
+    "verboseLogging": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging for debugging"
+    },
+    "timeout": {
+      "type": "number",
+      "default": 60000,
+      "description": "Maximum execution time in milliseconds"
+    },
+    "enableCache": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable result caching"
+    },
+    "detectLanguage": {
+      "type": "boolean",
+      "default": true,
+      "description": "Auto-detect code language"
+    },
+    "preserveComments": {
+      "type": "boolean",
+      "default": true,
+      "description": "Preserve comments in output"
+    },
+    "fixSyntaxErrors": {
+      "type": "boolean",
+      "default": true,
+      "description": "Attempt to fix syntax errors"
+    }
+  },
+  "output": {
+    "formatted": {
+      "type": "string",
+      "description": "Formatted code string"
+    },
+    "originalLength": {
+      "type": "number",
+      "description": "Original code length in characters"
+    },
+    "formattedLength": {
+      "type": "number",
+      "description": "Formatted code length in characters"
+    },
+    "language": {
+      "type": "string",
+      "description": "Detected language"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Formatting statistics"
+    },
+    "changes": {
+      "type": "array",
+      "description": "Applied formatting changes"
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Warnings during formatting"
+    },
+    "errors": {
+      "type": "array",
+      "description": "Errors encountered"
+    },
+    "analysisTime": {
+      "type": "number",
+      "description": "Time taken for formatting in milliseconds"
+    }
+  },
+  "customRules": {
+    "indent": {
+      "description": "Custom indentation rules",
+      "parameters": ["size", "useTabs"]
+    },
+    "lineWidth": {
+      "description": "Enforce maximum line width",
+      "parameters": ["maxWidth"]
+    },
+    "braceStyle": {
+      "description": "Configure brace style (1tbs or allman)",
+      "parameters": ["style"]
+    },
+    "quotes": {
+      "description": "Normalize quote style",
+      "parameters": ["quoteType"]
+    },
+    "semicolons": {
+      "description": "Configure semicolon handling",
+      "parameters": ["require"]
+    },
+    "whitespace": {
+      "description": "Normalize whitespace",
+      "parameters": ["removeExtra", "normalizeNewlines", "trimLines"]
+    }
+  },
+  "examples": [
+    {
+      "description": "Basic code formatting",
+      "code": "const { Beautifier } = require('./agents/beautifier');\nconst beautifier = new Beautifier();\nconst result = beautifier.format(code);\nconsole.log(result.formatted);"
+    },
+    {
+      "description": "TypeScript formatting with custom options",
+      "code": "const beautifier = new Beautifier({\n  tabWidth: 2,\n  singleQuote: true,\n  printWidth: 80\n});\nconst result = beautifier.format(tsCode);\nconsole.log('Language:', result.language);"
+    },
+    {
+      "description": "React JSX formatting",
+      "code": "const beautifier = new Beautifier({\n  tabWidth: 2,\n  singleQuote: true,\n  trailingComma: 'es5'\n});\nconst result = beautifier.format(jsxCode);\nconsole.log(result.statistics);"
+    },
+    {
+      "description": "Custom formatting rules",
+      "code": "const result = beautifier.formatWithCustomRules(code, [\n  { type: 'indent', options: { size: 4 } },\n  { type: 'quotes', quoteType: 'single' },\n  { type: 'line-width', maxWidth: 80 }\n]);"
+    },
+    {
+      "description": "Async formatting with events",
+      "code": "const beautifier = new Beautifier({ verboseLogging: true });\nbeautifier.on('progress', (data) => console.log(data.phase));\nconst result = await beautifier.formatAsync(code);\nconsole.log('Reduction:', result.statistics.reduction);"
+    },
+    {
+      "description": "Batch formatting",
+      "code": "const { formatBatch } = require('./agents/beautifier');\nconst results = await formatBatch([code1, code2, code3], {\n  batchSize: 10,\n  onProgress: ({ completed, total }) => console.log(completed + '/' + total)\n});"
+    }
+  ],
+  "relatedAgents": [
+    "string-decryptor",
+    "pattern-recognizer",
+    "control-flow-analyzer",
+    "validator",
+    "renamer",
+    "orchestrator"
+  ],
+  "category": "formatting",
+  "status": "stable",
+  "maintainers": [
+    {
+      "name": "Deobfuscation Team",
+      "email": "team@deobfuscator.dev",
+      "url": "https://deobfuscator.dev"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Lead Developer",
+      "role": "maintainer"
+    }
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/snippet-deobfuscator"
+  }
+}

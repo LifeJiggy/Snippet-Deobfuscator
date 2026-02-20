@@ -1,0 +1,374 @@
+{
+  "name": "pattern-recognizer-agent",
+  "version": "3.0.0",
+  "description": "Production-grade specialized agent for recognizing and classifying 50+ obfuscation patterns in JavaScript code. Provides comprehensive pattern detection using both regex-based surface scanning and deep AST analysis for complex patterns.",
+  "type": "agent",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator"
+  },
+  "bugs": {
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator/issues"
+  },
+  "homepage": "https://github.com/snippet-deobfuscator/snippet-deobfuscator#readme",
+  "keywords": [
+    "pattern-recognition",
+    "obfuscation",
+    "deobfuscation",
+    "detection",
+    "ast-analysis",
+    "regex",
+    "security",
+    "malware",
+    "javascript",
+    "static-analysis",
+    "threat-detection"
+  ],
+  "capabilities": [
+    "array-access-detection",
+    "arithmetic-obfuscation",
+    "split-string-detection",
+    "iiife-detection",
+    "proxy-function-detection",
+    "dead-code-detection",
+    "obfuscated-call-detection",
+    "variable-mangling-detection",
+    "control-flow-flattening-detection",
+    "eval-detection",
+    "crypto-detection",
+    "anti-debug-detection",
+    "prototype-pollution-detection",
+    "network-exfiltration-detection",
+    "framework-specific-detection",
+    "string-encoding-detection",
+    "base64-detection",
+    "hex-detection",
+    "unicode-escape-detection",
+    "charcode-detection",
+    "html-entity-detection",
+    "function-constructor-detection",
+    "dynami-function-call-detection",
+    "opaque-predicate-detection",
+    "try-catch-obfuscation-detection",
+    "global-variable-hiding",
+    "jquery-obfuscation-detection",
+    "react-jsx-detection",
+    "vue-directive-detection"
+  ],
+  "dependencies": [
+    "@babel/parser",
+    "@babel/traverse",
+    "@babel/generator",
+    "string-decryptor"
+  ],
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "entry": "index.js",
+  "priority": 4,
+  "timeout": 45000,
+  "retries": 3,
+  "analysis": {
+    "stringPatterns": {
+      "enabled": true,
+      "description": "Detect string obfuscation patterns",
+      "options": {
+        "detectArrayAccess": true,
+        "detectCharCode": true,
+        "detectSplitStrings": true,
+        "detectBase64": true,
+        "detectHexEncoding": true,
+        "detectUnicodeEscape": true,
+        "detectHTMLEntity": true,
+        "detectReverseStrings": true,
+        "detectConcatenation": true
+      }
+    },
+    "functionPatterns": {
+      "enabled": true,
+      "description": "Detect function obfuscation patterns",
+      "options": {
+        "detectEval": true,
+        "detectFunctionConstructor": true,
+        "detectSetTimeoutEval": true,
+        "detectIIFE": true,
+        "detectDynamicCalls": true,
+        "detectProxyFunctions": true,
+        "detectWrapperFunctions": true
+      }
+    },
+    "controlFlowPatterns": {
+      "enabled": true,
+      "description": "Detect control flow obfuscation",
+      "options": {
+        "detectFlattening": true,
+        "detectOpaquePredicates": true,
+        "detectDeadCode": true,
+        "detectTryCatchObfuscation": true,
+        "detectBogusControlFlow": true,
+        "detectIndirectJumps": true
+      }
+    },
+    "variablePatterns": {
+      "enabled": true,
+      "description": "Detect variable obfuscation",
+      "options": {
+        "detectVariableMangling": true,
+        "detectGlobalHiding": true,
+        "detectReassignment": true,
+        "detectUnusedVariables": true,
+        "detectConstantPropagation": false
+      }
+    },
+    "securityPatterns": {
+      "enabled": true,
+      "description": "Detect security-related patterns",
+      "options": {
+        "detectPrototypePollution": true,
+        "detectAntiDebugging": true,
+        "detectCodeInjection": true,
+        "detectNetworkExfiltration": true,
+        "detectCryptoUsage": true,
+        "detectDOMManipulation": true,
+        "detectEventListeners": true
+      }
+    },
+    "frameworkPatterns": {
+      "enabled": true,
+      "description": "Detect framework-specific patterns",
+      "options": {
+        "detectJQuery": true,
+        "detectReactJSX": true,
+        "detectVueDirectives": true,
+        "detectAngular": true,
+        "detectNodeModules": true,
+        "detectWebpack": true
+      }
+    }
+  },
+  "configuration": {
+    "maxPatternSamples": {
+      "type": "number",
+      "default": 5,
+      "description": "Maximum number of code samples to store per pattern"
+    },
+    "enableASTAnalysis": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable deep AST-based pattern analysis"
+    },
+    "enableRegexAnalysis": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable regex-based pattern matching"
+    },
+    "minConfidence": {
+      "type": "number",
+      "default": 0.5,
+      "description": "Minimum confidence threshold for pattern detection (0-1)"
+    },
+    "cacheAST": {
+      "type": "boolean",
+      "default": true,
+      "description": "Cache parsed ASTs for repeated analysis"
+    },
+    "parallelProcessing": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable parallel pattern detection"
+    },
+    "detectNewPatterns": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable experimental pattern detection"
+    },
+    "timeout": {
+      "type": "number",
+      "default": 45000,
+      "description": "Maximum execution time in milliseconds"
+    },
+    "verboseLogging": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging for debugging"
+    }
+  },
+  "output": {
+    "patterns": {
+      "type": "array",
+      "description": "Array of detected patterns with details"
+    },
+    "severityCounts": {
+      "type": "object",
+      "description": "Counts of patterns by severity level"
+    },
+    "categoryCounts": {
+      "type": "object",
+      "description": "Counts of patterns by category"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Overall statistics including totals and risk score"
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Prioritized recommendations for remediation"
+    },
+    "riskScore": {
+      "type": "number",
+      "description": "Overall obfuscation risk score (0-100)"
+    }
+  },
+  "severityLevels": {
+    "critical": {
+      "description": "Security vulnerabilities requiring immediate attention",
+      "examples": ["eval with user input", "code injection", "remote code execution"],
+      "responseTime": "immediate"
+    },
+    "high": {
+      "description": "Significant obfuscation that obscures code logic",
+      "examples": ["control flow flattening", "heavy base64 encoding", "string decryption"],
+      "responseTime": "soon"
+    },
+    "medium": {
+      "description": "Moderate obfuscation affecting code readability",
+      "examples": ["charCode obfuscation", "variable mangling", "IIFE wrapping"],
+      "responseTime": "planned"
+    },
+    "low": {
+      "description": "Minor obfuscation with minimal impact",
+      "examples": ["template literals", "optional chaining", "minor encoding"],
+      "responseTime": "when-convenient"
+    }
+  },
+  "patternCategories": {
+    "string": {
+      "description": "String encoding and obfuscation patterns",
+      "weight": 0.2
+    },
+    "function": {
+      "description": "Function obfuscation patterns",
+      "weight": 0.3
+    },
+    "control": {
+      "description": "Control flow obfuscation patterns",
+      "weight": 0.25
+    },
+    "variable": {
+      "description": "Variable name and scope obfuscation",
+      "weight": 0.1
+    },
+    "security": {
+      "description": "Security-related patterns",
+      "weight": 0.4
+    },
+    "framework": {
+      "description": "Framework-specific patterns",
+      "weight": 0.05
+    }
+  },
+  "detectionMethods": {
+    "regex": {
+      "description": "Fast pattern matching using regular expressions",
+      "useCases": ["string patterns", "simple detections", "initial scan"],
+      "performance": "fast"
+    },
+    "ast": {
+      "description": "Deep analysis using Abstract Syntax Tree",
+      "useCases": ["complex patterns", "contextual analysis", "accurate detection"],
+      "performance": "slower but accurate"
+    },
+    "hybrid": {
+      "description": "Combined regex and AST analysis",
+      "useCases": ["comprehensive detection", "validation", "sample extraction"],
+      "performance": "balanced"
+    }
+  },
+  "obfuscationTechniques": {
+    "stringEncoding": {
+      "techniques": ["base64", "hex", "unicode", "charCode", "reverse"],
+      "detectionDifficulty": "easy"
+    },
+    "codePackaging": {
+      "techniques": ["IIFE", "module pattern", "closure"],
+      "detectionDifficulty": "easy"
+    },
+    "controlFlow": {
+      "techniques": ["flattening", "opaque predicates", "dead code", "jumps"],
+      "detectionDifficulty": "medium"
+    },
+    "identifierObfuscation": {
+      "techniques": ["mangling", "encoding", "splitting"],
+      "detectionDifficulty": "easy"
+    },
+    "logicObfuscation": {
+      "techniques": ["bogus control flow", "branch inversion", "loop transformation"],
+      "detectionDifficulty": "hard"
+    }
+  },
+  "integration": {
+    "orchestrator": {
+      "role": "Primary pattern detection agent",
+      "executionOrder": 2,
+      "dependsOn": ["string-decryptor"],
+      "provides": ["pattern-analysis", "risk-assessment", "recommendations"]
+    },
+    "controlFlowAnalyzer": {
+      "role": "Complementary control flow analysis",
+      "dependsOn": false,
+      "provides": ["control-flow-structures"]
+    },
+    "validator": {
+      "role": "Post-analysis validation",
+      "dependsOn": true,
+      "provides": ["validation-results"]
+    }
+  },
+  "examples": [
+    {
+      "description": "Basic pattern recognition",
+      "code": "const { PatternRecognizer } = require('./agents/pattern-recognizer');\nconst agent = new PatternRecognizer();\nconst result = agent.analyze(code);\nconsole.log('Total patterns:', result.statistics.totalPatterns);\nconsole.log('Risk score:', result.riskScore);"
+    },
+    {
+      "description": "Detailed pattern analysis with filtering",
+      "code": "const agent = new PatternRecognizer({\n  enableASTAnalysis: true,\n  minConfidence: 0.7,\n  maxPatternSamples: 10\n});\nconst result = agent.analyze(code);\n\n// Filter critical issues\nconst critical = result.patterns.filter(p => p.severity === 'critical');\nconsole.log('Critical issues:', critical.length);\n\n// Get recommendations\nresult.recommendations.forEach(r => {\n  console.log(`[${r.priority}] ${r.message}`);\n});"
+    },
+    {
+      "description": "Async analysis with progress events",
+      "code": "const agent = new PatternRecognizer();\nagent.on('progress', (progress) => {\n  console.log(`Analysis: ${progress.percent}%`);\n});\n\nconst result = await agent.analyzeAsync(code);\nconsole.log('Risk score:', result.riskScore);\nconsole.log('Recommendations:', result.recommendations);"
+    },
+    {
+      "description": "Batch analysis for multiple files",
+      "code": "const agent = new PatternRecognizer({ cacheAST: true });\nconst codes = [code1, code2, code3];\nconst results = await agent.an);\n\nresultsalyzeBatch(codes.forEach((result, i) => {\n  console.log(`File ${i+1}: Risk ${result.riskScore}`);\n});"
+    }
+  ],
+  "relatedAgents": [
+    "string-decryptor",
+    "control-flow-analyzer",
+    "validator",
+    "renamer",
+    "orchestrator"
+  ],
+  "category": "analysis",
+  "status": "stable",
+  "maintainers": [
+    {
+      "name": "Deobfuscation Team",
+      "email": "team@deobfuscator.dev",
+      "url": "https://deobfuscator.dev"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Lead Developer",
+      "role": "maintainer"
+    }
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/snippet-deobfuscator"
+  }
+}

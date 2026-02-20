@@ -1,0 +1,18 @@
+{
+  "name": "snippet-deobfuscator",
+  "version": "3.0.0",
+  "description": "Deobfuscate JavaScript snippets like a human expert",
+  "main": "index.js",
+  "bin": {
+    "deobfuscate": "./index.js"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.28.0",
+    "@babel/parser": "^7.28.0",
+    "@babel/traverse": "^7.28.0",
+    "prettier": "^2.8.8"
+  },
+  "devDependencies": {
+    "@types/prettier": "^2.7.3"
+  }
+}

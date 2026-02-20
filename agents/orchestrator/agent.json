@@ -1,0 +1,323 @@
+{
+  "name": "orchestrator-agent",
+  "version": "3.0.0",
+  "description": "Production-grade main orchestrator agent that coordinates all other agents for comprehensive JavaScript deobfuscation. Manages the entire deobfuscation pipeline from framework detection to final validation, orchestrating string decryption, control flow analysis, variable renaming, beautification, and validation in optimal order.",
+  "type": "agent",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator"
+  },
+  "bugs": {
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator/issues"
+  },
+  "homepage": "https://github.com/snippet-deobfuscator/snippet-deobfuscator#readme",
+  "keywords": [
+    "orchestrator",
+    "deobfuscation",
+    "coordination",
+    "workflow",
+    "pipeline",
+    "agent-coordination",
+    "string-decryption",
+    "control-flow",
+    "renaming",
+    "beautification",
+    "validation",
+    "javascript",
+    "framework-detection",
+    "pattern-recognition"
+  ],
+  "capabilities": [
+    "agent-coordination",
+    "workflow-management",
+    "result-aggregation",
+    "error-handling",
+    "progress-tracking",
+    "parallel-processing",
+    "fallback-strategies",
+    "report-generation",
+    "custom-workflows",
+    "agent-registration",
+    "caching",
+    "timeout-management",
+    "retry-logic",
+    "batch-processing"
+  ],
+  "dependencies": [
+    "string-decryptor",
+    "control-flow-analyzer",
+    "framework-detector",
+    "pattern-recognizer",
+    "renamer",
+    "beautifier",
+    "validator"
+  ],
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "entry": "index.js",
+  "priority": 8,
+  "timeout": 120000,
+  "retries": 2,
+  "orchestration": {
+    "workflow": {
+      "default": [
+        { "agent": "frameworkDetector", "parallel": true },
+        { "agent": "patternRecognizer", "parallel": true },
+        { "agent": "stringDecryptor", "parallel": false },
+        { "agent": "controlFlowAnalyzer", "parallel": false },
+        { "agent": "renamer", "parallel": false },
+        { "agent": "beautifier", "parallel": false },
+        { "agent": "validator", "parallel": false }
+      ],
+      "minimal": [
+        { "agent": "stringDecryptor", "parallel": false },
+        { "agent": "controlFlowAnalyzer", "parallel": false },
+        { "agent": "beautifier", "parallel": false }
+      ],
+      "security": [
+        { "agent": "frameworkDetector", "parallel": true },
+        { "agent": "patternRecognizer", "parallel": true },
+        { "agent": "stringDecryptor", "parallel": false },
+        { "agent": "controlFlowAnalyzer", "parallel": false },
+        { "agent": "validator", "parallel": false }
+      ],
+      "analysis": [
+        { "agent": "frameworkDetector", "parallel": true },
+        { "agent": "patternRecognizer", "parallel": true },
+        { "agent": "controlFlowAnalyzer", "parallel": false }
+      ]
+    },
+    "parallel": {
+      "enabled": true,
+      "maxAgents": 3,
+      "dependencies": {
+        "stringDecryptor": ["frameworkDetector", "patternRecognizer"],
+        "controlFlowAnalyzer": ["stringDecryptor"],
+        "renamer": ["controlFlowAnalyzer"],
+        "beautifier": ["renamer"],
+        "validator": ["beautifier"]
+      }
+    },
+    "errorHandling": {
+      "maxRetries": 2,
+      "continueOnError": true,
+      "fallbackStrategies": true
+    }
+  },
+  "configuration": {
+    "maxRetries": {
+      "type": "number",
+      "default": 2,
+      "description": "Maximum retry attempts for failed agents"
+    },
+    "timeout": {
+      "type": "number",
+      "default": 120000,
+      "description": "Overall timeout in milliseconds"
+    },
+    "parallel": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable parallel agent execution"
+    },
+    "validateEachStep": {
+      "type": "boolean",
+      "default": true,
+      "description": "Validate after each step"
+    },
+    "continueOnError": {
+      "type": "boolean",
+      "default": true,
+      "description": "Continue on agent failure"
+    },
+    "verboseLogging": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging for debugging"
+    },
+    "enableCache": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable result caching"
+    },
+    "maxParallelAgents": {
+      "type": "number",
+      "default": 3,
+      "description": "Maximum parallel agents"
+    },
+    "enableProgressTracking": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable progress tracking"
+    },
+    "aggregateResults": {
+      "type": "boolean",
+      "default": true,
+      "description": "Aggregate results from all agents"
+    },
+    "generateReport": {
+      "type": "boolean",
+      "default": true,
+      "description": "Generate comprehensive report"
+    },
+    "strictMode": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable strict validation mode"
+    }
+  },
+  "output": {
+    "deobfuscatedCode": {
+      "type": "string",
+      "description": "Final deobfuscated code"
+    },
+    "originalCode": {
+      "type": "string",
+      "description": "Original obfuscated code"
+    },
+    "results": {
+      "type": "object",
+      "description": "Results from each agent"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Orchestration statistics"
+    },
+    "success": {
+      "type": "boolean",
+      "description": "Overall success status"
+    },
+    "errors": {
+      "type": "array",
+      "description": "Errors encountered during orchestration"
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Warnings during orchestration"
+    },
+    "analysisTime": {
+      "type": "number",
+      "description": "Total orchestration time in milliseconds"
+    }
+  },
+  "events": {
+    "orchestrationStart": {
+      "description": "Fired when orchestration begins",
+      "payload": ["context", "codeLength"]
+    },
+    "agentStart": {
+      "description": "Fired when an agent starts",
+      "payload": ["agent", "codeLength"]
+    },
+    "agentComplete": {
+      "description": "Fired when an agent completes",
+      "payload": ["agent", "success", "duration"]
+    },
+    "agentError": {
+      "description": "Fired when an agent errors",
+      "payload": ["agent", "error"]
+    },
+    "progress": {
+      "description": "Fired for progress updates",
+      "payload": ["phase", "progress"]
+    },
+    "orchestrationComplete": {
+      "description": "Fired when orchestration completes",
+      "payload": ["orchestrationTime", "success"]
+    },
+    "orchestrationError": {
+      "description": "Fired when orchestration errors",
+      "payload": ["error"]
+    },
+    "cacheHit": {
+      "description": "Fired when result is served from cache",
+      "payload": ["key"]
+    }
+  },
+  "agents": {
+    "stringDecryptor": {
+      "description": "Decrypts encoded strings",
+      "priority": 1
+    },
+    "controlFlowAnalyzer": {
+      "description": "Analyzes control flow structures",
+      "priority": 2
+    },
+    "frameworkDetector": {
+      "description": "Detects web framework",
+      "priority": 0,
+      "parallel": true
+    },
+    "patternRecognizer": {
+      "description": "Recognizes obfuscation patterns",
+      "priority": 0,
+      "parallel": true
+    },
+    "renamer": {
+      "description": "Renames obfuscated variables",
+      "priority": 3
+    },
+    "beautifier": {
+      "description": "Formats and beautifies code",
+      "priority": 4
+    },
+    "validator": {
+      "description": "Validates deobfuscated code",
+      "priority": 5
+    }
+  },
+  "examples": [
+    {
+      "description": "Basic code deobfuscation",
+      "code": "const { Orchestrator } = require('./agents/orchestrator');\nconst orchestrator = new Orchestrator();\nconst result = orchestrator.orchestrate(code);\nconsole.log(result.deobfuscatedCode);"
+    },
+    {
+      "description": "Async orchestration with events",
+      "code": "const orchestrator = new Orchestrator({ verboseLogging: true });\norchestrator.on('progress', (data) => console.log(data.phase));\nconst result = await orchestrator.orchestrateAsync(code);\nconsole.log('Success:', result.success);"
+    },
+    {
+      "description": "Custom workflow",
+      "code": "const result = await orchestrator.orchestrateWithWorkflow(code, [\n  'frameworkDetector',\n  'stringDecryptor',\n  'beautifier'\n]);"
+    },
+    {
+      "description": "With all options",
+      "code": "const orchestrator = new Orchestrator({\n  maxRetries: 3,\n  timeout: 180000,\n  parallel: true,\n  validateEachStep: true,\n  verboseLogging: true\n});\nconst result = await orchestrator.orchestrateAsync(code);"
+    },
+    {
+      "description": "Batch processing",
+      "code": "const { orchestrateBatch } = require('./agents/orchestrator');\nconst results = await orchestrateBatch([code1, code2, code3], {\n  onProgress: ({ completed, total }) => console.log(completed + '/' + total)\n});"
+    }
+  ],
+  "relatedAgents": [
+    "string-decryptor",
+    "control-flow-analyzer",
+    "framework-detector",
+    "pattern-recognizer",
+    "renamer",
+    "beautifier",
+    "validator"
+  ],
+  "category": "orchestration",
+  "status": "stable",
+  "maintainers": [
+    {
+      "name": "Deobfuscation Team",
+      "email": "team@deobfuscator.dev",
+      "url": "https://deobfuscator.dev"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Lead Developer",
+      "role": "maintainer"
+    }
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/snippet-deobfuscator"
+  }
+}

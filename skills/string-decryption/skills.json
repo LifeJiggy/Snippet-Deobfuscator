@@ -1,0 +1,271 @@
+{
+  "name": "string-decryption-skill",
+  "version": "3.0.0",
+  "description": "Advanced string decryption skill with multiple encoding schemes for JavaScript deobfuscation",
+  "type": "skill",
+  "category": "decryption",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "capabilities": {
+    "standardEncodings": [
+      {
+        "name": "base64",
+        "description": "Standard Base64 encoding detection and decoding",
+        "variants": ["standard", "url-safe", "regex"],
+        "confidence": 0.95
+      },
+      {
+        "name": "base32",
+        "description": "Base32 encoding detection and decoding",
+        "variants": ["standard", "hex"],
+        "confidence": 0.9
+      },
+      {
+        "name": "hex",
+        "description": "Hexadecimal string encoding detection and conversion",
+        "variants": ["0x-prefixed", "escaped-x", "plain"],
+        "confidence": 0.85
+      },
+      {
+        "name": "binary",
+        "description": "Binary string encoding detection and decoding",
+        "variants": ["8-bit", "7-bit"],
+        "confidence": 0.8
+      },
+      {
+        "name": "octal",
+        "description": "Octal encoding detection and decoding",
+        "variants": ["escaped", "plain"],
+        "confidence": 0.8
+      }
+    ],
+    "characterEncodings": [
+      {
+        "name": "unicode",
+        "description": "Unicode escape sequence detection and parsing",
+        "patterns": ["\\uXXXX", "\\u{X}"],
+        "confidence": 0.95
+      },
+      {
+        "name": "url",
+        "description": "URL encoding analysis and decoding",
+        "variants": ["encodeURI", "encodeURIComponent", "double-encoded"],
+        "confidence": 0.9
+      },
+      {
+        "name": "html",
+        "description": "HTML entity encoding detection and decoding",
+        "variants": ["named", "numeric-decimal", "numeric-hex"],
+        "confidence": 0.9
+      },
+      {
+        "name": "ascii",
+        "description": "ASCII code conversion detection",
+        "patterns": ["charCodeAt", "fromCharCode"],
+        "confidence": 0.85
+      }
+    ],
+    "cipherDecryption": [
+      {
+        "name": "rot13",
+        "description": "ROT13 cipher detection and decoding",
+        "confidence": 0.85
+      },
+      {
+        "name": "rot47",
+        "description": "ROT47 cipher detection and decoding",
+        "confidence": 0.85
+      },
+      {
+        "name": "xor",
+        "description": "XOR encryption detection and decryption",
+        "variants": ["single-byte", "multi-byte", "key-based"],
+        "confidence": 0.75
+      },
+      {
+        "name": "aes128",
+        "description": "AES-128-CBC decryption with key detection",
+        "confidence": 0.6
+      },
+      {
+        "name": "aes256",
+        "description": "AES-256-CBC decryption with key detection",
+        "confidence": 0.6
+      },
+      {
+        "name": "rc4",
+        "description": "RC4 stream cipher decryption",
+        "confidence": 0.65
+      },
+      {
+        "name": "des",
+        "description": "DES encryption decryption",
+        "confidence": 0.55
+      },
+      {
+        "name": "blowfish",
+        "description": "Blowfish cipher decryption",
+        "confidence": 0.5
+      }
+    ],
+    "obfuscationPatterns": [
+      {
+        "name": "charCode",
+        "description": "Character code array detection and reconstruction",
+        "patterns": ["String.fromCharCode", "charCodeAt"],
+        "confidence": 0.9
+      },
+      {
+        "name": "splitJoin",
+        "description": "String split/join obfuscation pattern",
+        "patterns": [".split().join()"],
+        "confidence": 0.85
+      },
+      {
+        "name": "concatenation",
+        "description": "String concatenation chain detection",
+        "confidence": 0.8
+      },
+      {
+        "name": "arrayAccess",
+        "description": "Array-based string storage detection",
+        "confidence": 0.75
+      },
+      {
+        "name": "reverse",
+        "description": "Reversed string detection",
+        "confidence": 0.9
+      },
+      {
+        "name": "multiLayer",
+        "description": "Multi-layer encoding detection",
+        "maxLayers": 10,
+        "confidence": 0.7
+      }
+    ]
+  },
+  "detection": {
+    "patterns": {
+      "base64": {
+        "regex": "^[A-Za-z0-9+/]+={0,2}$",
+        "minLength": 4,
+        "lengthModulo": 4,
+        "checkUTF8": true
+      },
+      "hex": {
+        "regex": "^[0-9a-fA-F]+$",
+        "minLength": 2,
+        "lengthModulo": 2
+      },
+      "unicode": {
+        "regex": "\\\\u[0-9a-fA-F]{4}",
+        "minOccurrences": 1
+      },
+      "url": {
+        "regex": "%[0-9A-Fa-f]{2}",
+        "minOccurrences": 1
+      },
+      "html": {
+        "regex": "&[a-zA-Z]+;|&#\\d+;|&#x[0-9a-fA-F]+;",
+        "minOccurrences": 1
+      },
+      "rot13": {
+        "checkChars": "a-zA-Z",
+        "preserveCase": true
+      },
+      "xor": {
+        "keyDetection": true,
+        "commonKeys": ["0x00", "0x41", "0x55", "0xAA", "0xFF"],
+        "bruteForce": false
+      }
+    },
+    "validation": {
+      "printableThreshold": 0.5,
+      "utf8Validation": true,
+      "minLength": 1,
+      "maxLength": 1000000,
+      "syntaxCheck": true,
+      "contextAware": true
+    },
+    "heuristics": {
+      "tryAllMethods": true,
+      "prioritizePatterns": true,
+      "confidenceThreshold": 0.7,
+      "maxAttempts": 10,
+      "fallbackEnabled": true
+    }
+  },
+  "configuration": {
+    "cache": {
+      "enabled": true,
+      "maxSize": 1000,
+      "ttl": 3600000
+    },
+    "performance": {
+      "timeout": 5000,
+      "maxStringSize": 10000000,
+      "parallelDecoding": true,
+      "earlyExit": true
+    },
+    "output": {
+      "includeMethod": true,
+      "includeConfidence": true,
+      "includeAttempts": true,
+      "includeWarnings": true,
+      "includeStatistics": true
+    },
+    "logging": {
+      "level": "info",
+      "verboseErrors": false,
+      "trackPerformance": true
+    }
+  },
+  "dependencies": {
+    "required": ["crypto"],
+    "optional": [],
+    "version": "Node.js >= 14.0.0"
+  },
+  "entry": "string-decryption.js",
+  "priority": 1,
+  "timeout": 5000,
+  "retries": 3,
+  "examples": [
+    {
+      "input": "SGVsbG8gV29ybGQ=",
+      "output": "Hello World",
+      "method": "base64",
+      "confidence": 0.95
+    },
+    {
+      "input": "\\x48\\x65\\x6c\\x6c\\x6f",
+      "output": "Hello",
+      "method": "hex-escape",
+      "confidence": 0.9
+    },
+    {
+      "input": "Uryyb Jbeyq",
+      "output": "Hello World",
+      "method": "rot13",
+      "confidence": 0.85
+    },
+    {
+      "input": "%48%65%6c%6c%6f",
+      "output": "Hello",
+      "method": "url",
+      "confidence": 0.9
+    }
+  ],
+  "metadata": {
+    "created": "2024-01-01T00:00:00.000Z",
+    "updated": "2024-01-15T00:00:00.000Z",
+    "tags": [
+      "decryption",
+      "encoding",
+      "base64",
+      "hex",
+      "cipher",
+      "obfuscation"
+    ],
+    "documentation": "./skills/string-decryption/skills.md"
+  }
+}

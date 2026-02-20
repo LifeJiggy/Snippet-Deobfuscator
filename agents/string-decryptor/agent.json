@@ -1,0 +1,361 @@
+{
+  "name": "string-decryptor-agent",
+  "version": "3.0.0",
+  "description": "Production-grade specialized agent for decrypting and analyzing obfuscated strings in JavaScript code. Supports base64, hex, ROT13, XOR, Unicode, and more with advanced caching, multi-layer decryption, and confidence scoring.",
+  "type": "agent",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator"
+  },
+  "bugs": {
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator/issues"
+  },
+  "homepage": "https://github.com/snippet-deobfuscator/snippet-deobfuscator#readme",
+  "keywords": [
+    "deobfuscator",
+    "javascript",
+    "obfuscation",
+    "string-decryption",
+    "base64",
+    "hex",
+    "rot13",
+    "xor",
+    "unicode",
+    "security",
+    "malware-analysis",
+    "reverse-engineering",
+    "decoding",
+    "encoding"
+  ],
+  "capabilities": [
+    "base64-decoding",
+    "hex-decoding",
+    "rot13-decoding",
+    "rot47-decoding",
+    "xor-decoding",
+    "unicode-decoding",
+    "url-decoding",
+    "html-entity-decoding",
+    "charcode-decoding",
+    "custom-cipher-decoding",
+    "eval-detection",
+    "encrypted-string-analysis",
+    "multi-layer-decryption",
+    "confidence-scoring",
+    "pattern-detection",
+    "cache-system",
+    "batch-processing",
+    "reverse-decoding",
+    "atbash-decoding",
+    "caesar-decoding",
+    "rail-fence-decoding",
+    "bacon-decoding"
+  ],
+  "dependencies": [
+    "@babel/parser",
+    "@babel/traverse",
+    "crypto"
+  ],
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "entry": "index.js",
+  "priority": 1,
+  "timeout": 30000,
+  "retries": 3,
+  "analysis": {
+    "encodingDetection": {
+      "enabled": true,
+      "description": "Detect and decode various string encoding schemes",
+      "options": {
+        "detectBase64": true,
+        "detectHex": true,
+        "detectRot13": true,
+        "detectRot47": true,
+        "detectXOR": true,
+        "detectUnicode": true,
+        "detectURL": true,
+        "detectHTMLEntity": true,
+        "detectCharCode": true,
+        "detectBinary": true,
+        "detectOctal": true,
+        "detectReverse": true,
+        "detectAtbash": true,
+        "detectCaesar": false,
+        "detectRailFence": false,
+        "detectBacon": false
+      }
+    },
+    "multiLayerDecryption": {
+      "enabled": true,
+      "description": "Handle nested/recursive encoding patterns",
+      "options": {
+        "maxDepth": 5,
+        "detectMultiLayer": true,
+        "trackDecryptionChain": true,
+        "stopOnValidResult": true
+      }
+    },
+    "evalAnalysis": {
+      "enabled": true,
+      "description": "Analyze eval() calls for encrypted payloads",
+      "options": {
+        "detectEvalCalls": true,
+        "analyzeEvalArgs": true,
+        "trackEvalPatterns": true,
+        "detectDynamicExecution": true
+      }
+    },
+    "confidenceScoring": {
+      "enabled": true,
+      "description": "Calculate confidence scores for decoded results",
+      "options": {
+        "minConfidence": 0.5,
+        "weightReadability": true,
+        "weightPatternMatch": true,
+        "weightContext": true
+      }
+    }
+  },
+  "configuration": {
+    "maxDepth": {
+      "type": "number",
+      "default": 5,
+      "description": "Maximum decryption recursion depth for multi-layer encoding",
+      "minimum": 1,
+      "maximum": 20
+    },
+    "cacheEnabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable caching of decrypted values for performance"
+    },
+    "cacheTTL": {
+      "type": "number",
+      "default": 300000,
+      "description": "Cache time-to-live in milliseconds (5 minutes default)"
+    },
+    "cacheSize": {
+      "type": "number",
+      "default": 1000,
+      "description": "Maximum number of cached entries"
+    },
+    "confidenceThreshold": {
+      "type": "number",
+      "default": 0.5,
+      "description": "Minimum confidence threshold for returning results",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "timeout": {
+      "type": "number",
+      "default": 30000,
+      "description": "Maximum execution time in milliseconds"
+    },
+    "maxRetries": {
+      "type": "number",
+      "default": 3,
+      "description": "Maximum number of retry attempts for failed operations"
+    },
+    "verboseLogging": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging for debugging"
+    },
+    "extractOnly": {
+      "type": "boolean",
+      "default": false,
+      "description": "Extract patterns without full decryption analysis"
+    },
+    "tryMultiLayer": {
+      "type": "boolean",
+      "default": true,
+      "description": "Attempt to decode multi-layer encoded strings"
+    },
+    "maxStringLength": {
+      "type": "number",
+      "default": 10000,
+      "description": "Maximum string length to attempt decryption"
+    },
+    "detectSuspiciousPatterns": {
+      "type": "boolean",
+      "default": true,
+      "description": "Detect suspicious encoding patterns indicating malware"
+    }
+  },
+  "output": {
+    "decryptedStrings": {
+      "type": "array",
+      "description": "Array of decrypted string objects containing original encoded value, decoded result, method used, and confidence score"
+    },
+    "encryptedPatterns": {
+      "type": "array",
+      "description": "Array of detected encryption/obfuscation patterns with type, count, and sample values"
+    },
+    "evalCalls": {
+      "type": "array",
+      "description": "Array of eval() calls found in the code with position and argument classification"
+    },
+    "multiLayerStrings": {
+      "type": "array",
+      "description": "Strings that required multi-layer decryption"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Statistics about the decryption process including attempts, successes, failures, and cache hits"
+    },
+    "suspiciousPatterns": {
+      "type": "array",
+      "description": "Suspicious patterns that may indicate malicious code"
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Array of warning messages generated during analysis"
+    },
+    "errors": {
+      "type": "array",
+      "description": "Array of error messages if any errors occurred during processing"
+    },
+    "cacheStats": {
+      "type": "object",
+      "description": "Cache performance statistics"
+    }
+  },
+  "supportedEncodings": [
+    {
+      "name": "base64",
+      "description": "Standard Base64 encoding",
+      "detection": ["^[A-Za-z0-9+/]+={0,2}$", "atob(", "btoa("],
+      "difficulty": "easy"
+    },
+    {
+      "name": "hex",
+      "description": "Hexadecimal encoding",
+      "detection": ["0x[0-9a-fA-F]+", "\\x[0-9a-fA-F]{2}"],
+      "difficulty": "easy"
+    },
+    {
+      "name": "rot13",
+      "description": "Caesar cipher rotation by 13",
+      "detection": ["rot13", "String\\.fromCharCode.*13"],
+      "difficulty": "easy"
+    },
+    {
+      "name": "rot47",
+      "description": "ROT47 for ASCII 33-126",
+      "detection": ["rot47"],
+      "difficulty": "medium"
+    },
+    {
+      "name": "xor",
+      "description": "XOR-based obfuscation",
+      "detection": ["\\^\\s*[0-9a-fA-F]", "xor"],
+      "difficulty": "hard"
+    },
+    {
+      "name": "unicode",
+      "description": "Unicode escape sequences",
+      "detection": ["\\\\u[0-9a-fA-F]{4}", "\\\\x[0-9a-fA-F]{2}"],
+      "difficulty": "easy"
+    },
+    {
+      "name": "url",
+      "description": "URL percent encoding",
+      "detection": ["%[0-9A-Fa-f]{2}", "decodeURIComponent"],
+      "difficulty": "easy"
+    },
+    {
+      "name": "html-entity",
+      "description": "HTML entity encoding",
+      "detection": ["&#[0-9]+;", "&[a-z]+;"],
+      "difficulty": "easy"
+    },
+    {
+      "name": "charcode",
+      "description": "String.fromCharCode patterns",
+      "detection": ["String\\.fromCharCode"],
+      "difficulty": "medium"
+    },
+    {
+      "name": "reverse",
+      "description": "Reversed strings",
+      "detection": ["\\.split.*reverse.*join"],
+      "difficulty": "easy"
+    }
+  ],
+  "severityIndicators": {
+    "critical": [
+      "eval with dynamic content",
+      "document.cookie access",
+      "XMLHttpRequest send",
+      "Function constructor"
+    ],
+    "high": [
+      "base64 encoded large strings",
+      "multi-layer encoding",
+      "obfuscated URLs",
+      "dynamic code generation"
+    ],
+    "medium": [
+      "charCode patterns",
+      "hex encoding",
+      "URL encoding"
+    ],
+    "low": [
+      "simple reverses",
+      "minor encoding",
+      "template literals"
+    ]
+  },
+  "examples": [
+    {
+      "description": "Basic string decryption",
+      "code": "const { StringDecryptor } = require('./agents/string-decryptor');\nconst agent = new StringDecryptor();\nconst result = agent.analyze('const x = \"SGVsbG8gV29ybGQ=\";');\nconsole.log(result.decryptedStrings);"
+    },
+    {
+      "description": "Advanced configuration with multi-layer decryption",
+      "code": "const agent = new StringDecryptor({\n  maxDepth: 10,\n  cacheEnabled: true,\n  confidenceThreshold: 0.8,\n  tryMultiLayer: true\n});\nconst result = agent.analyze(code);\nconsole.log('Decrypted:', result.decryptedStrings.length);"
+    },
+    {
+      "description": "Async analysis with progress events",
+      "code": "const agent = new StringDecryptor();\nagent.on('progress', (p) => console.log(`${p.stage}: ${p.percent}%`));\nagent.on('decryption', (d) => console.log(`Decoded: ${d.method}`));\n\nconst result = await agent.analyzeAsync(code);\nconsole.log('Risk indicators:', result.suspiciousPatterns);"
+    },
+    {
+      "description": "Batch analysis with caching",
+      "code": "const agent = new StringDecryptor({ cacheEnabled: true });\nconst codes = [code1, code2, code3];\nconst results = agent.analyzeBatch(codes);\nconsole.log('Cache stats:', agent.getCacheStats());"
+    },
+    {
+      "description": "Malware analysis use case",
+      "code": "const agent = new StringDecryptor({\n  detectSuspiciousPatterns: true,\n  confidenceThreshold: 0.7\n});\nconst result = agent.analyze(suspiciousCode);\nconst payloads = result.decryptedStrings.filter(s => s.confidence > 0.9);\nif (result.evalCalls.length > 0) console.warn('Eval detected!');\nconsole.log('Suspicious:', result.suspiciousPatterns);"
+    }
+  ],
+  "relatedAgents": [
+    "pattern-recognizer",
+    "control-flow-analyzer",
+    "validator",
+    "renamer",
+    "orchestrator"
+  ],
+  "category": "decryption",
+  "status": "stable",
+  "maintainers": [
+    {
+      "name": "Deobfuscation Team",
+      "email": "team@deobfuscator.dev",
+      "url": "https://deobfuscator.dev"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Lead Developer",
+      "role": "maintainer"
+    }
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/snippet-deobfuscator"
+  }
+}

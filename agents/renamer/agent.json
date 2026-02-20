@@ -1,0 +1,328 @@
+{
+  "name": "renamer-agent",
+  "version": "3.0.0",
+  "description": "Production-grade specialized agent for intelligent variable and function renaming with context awareness. Provides semantic naming suggestions based on code patterns, scope analysis, and framework-specific conventions.",
+  "type": "agent",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator"
+  },
+  "bugs": {
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator/issues"
+  },
+  "homepage": "https://github.com/snippet-deobfuscator/snippet-deobfuscator#readme",
+  "keywords": [
+    "renamer",
+    "deobfuscation",
+    "variable-renaming",
+    "function-renaming",
+    "semantic-naming",
+    "code-quality",
+    "refactoring",
+    "javascript",
+    "obfuscation",
+    "ast"
+  ],
+  "capabilities": [
+    "variable-renaming",
+    "function-renaming",
+    "class-renaming",
+    "method-renaming",
+    "property-renaming",
+    "parameter-renaming",
+    "constant-renaming",
+    "context-aware-naming",
+    "framework-specific-naming",
+    "semantic-naming",
+    "scope-analysis",
+    "name-suggestions",
+    "name-conflict-resolution",
+    "prefix-suffix-handling",
+    "camelCase-conversion",
+    "snake_case-conversion",
+    "pascalCase-conversion"
+  ],
+  "dependencies": [
+    "@babel/parser",
+    "@babel/traverse",
+    "@babel/generator",
+    "framework-detector"
+  ],
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "entry": "index.js",
+  "priority": 5,
+  "timeout": 40000,
+  "retries": 3,
+  "analysis": {
+    "variableAnalysis": {
+      "enabled": true,
+      "description": "Analyze variables for renaming opportunities",
+      "options": {
+        "renameSingleLetter": true,
+        "renameObfuscated": true,
+        "preserveGlobal": true,
+        "preserveBuiltins": true,
+        "minLength": 1,
+        "maxLength": 50
+      }
+    },
+    "functionAnalysis": {
+      "enabled": true,
+      "description": "Analyze functions for renaming opportunities",
+      "options": {
+        "renameAnonymous": true,
+        "renameObfuscated": true,
+        "inferFromBody": true,
+        "inferFromCalls": true,
+        "preserveThis": true,
+        "preservePrototype": true
+      }
+    },
+    "scopeAnalysis": {
+      "enabled": true,
+      "description": "Analyze variable scope for safe renaming",
+      "options": {
+        "trackGlobal": true,
+        "trackClosure": true,
+        "trackBlockScope": true,
+        "detectConflicts": true,
+        "resolveReferences": true
+      }
+    },
+    "semanticAnalysis": {
+      "enabled": true,
+      "description": "Infer semantic meaning from code patterns",
+      "options": {
+        "analyzeUsage": true,
+        "analyzeType": true,
+        "analyzeContext": true,
+        "useDictionary": true,
+        "generateSuggestions": true
+      }
+    }
+  },
+  "configuration": {
+    "framework": {
+      "type": "string",
+      "default": "vanilla",
+      "description": "Target framework for context-aware naming (react, vue, angular, svelte, nodejs, nextjs, vanilla)"
+    },
+    "maxNameLength": {
+      "type": "number",
+      "default": 20,
+      "description": "Maximum length for generated names",
+      "minimum": 5,
+      "maximum": 50
+    },
+    "minNameLength": {
+      "type": "number",
+      "default": 2,
+      "description": "Minimum length for generated names",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "cacheEnabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable caching of rename mappings"
+    },
+    "cacheTTL": {
+      "type": "number",
+      "default": 300000,
+      "description": "Cache time-to-live in milliseconds"
+    },
+    "cacheSize": {
+      "type": "number",
+      "default": 500,
+      "description": "Maximum cache entries"
+    },
+    "preservePrefixes": {
+      "type": "array",
+      "default": ["_", "$"],
+      "description": "Preserve these prefixes in variable names"
+    },
+    "preserveSuffixes": {
+      "type": "array",
+      "default": [],
+      "description": "Preserve these suffixes in variable names"
+    },
+    "semanticNaming": {
+      "type": "boolean",
+      "default": true,
+      "description": "Use semantic naming based on context"
+    },
+    "contextAware": {
+      "type": "boolean",
+      "default": true,
+      "description": "Consider surrounding context for naming"
+    },
+    "generateSuggestions": {
+      "type": "boolean",
+      "default": true,
+      "description": "Generate name suggestions"
+    },
+    "namingConvention": {
+      "type": "string",
+      "default": "camelCase",
+      "description": "Naming convention (camelCase, snake_case, pascalCase, kebab-case)",
+      "enum": ["camelCase", "snake_case", "pascalCase", "kebab-case"]
+    },
+    "timeout": {
+      "type": "number",
+      "default": 40000,
+      "description": "Maximum execution time in milliseconds"
+    },
+    "verboseLogging": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging"
+    }
+  },
+  "output": {
+    "renames": {
+      "type": "array",
+      "description": "Array of rename suggestions with original and new names"
+    },
+    "suggestions": {
+      "type": "array",
+      "description": "Array of name suggestions with confidence scores"
+    },
+    "conflicts": {
+      "type": "array",
+      "description": "Array of detected naming conflicts"
+    },
+    "scopeMap": {
+      "type": "object",
+      "description": "Variable scope mapping"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Statistics about renaming operations"
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Warning messages"
+    },
+    "errors": {
+      "type": "array",
+      "description": "Error messages if any"
+    }
+  },
+  "namingPatterns": {
+    "variables": {
+      "singleLetter": ["i", "j", "k", "n", "x", "y", "z", "e", "v", "m"],
+      "obfuscated": ["_0x[a-f0-9]+", "_0x\\w+", "\\$\\w+", "O0O"],
+      "meaningful": {
+        "loop": ["iterator", "index", "item", "element", "key", "value"],
+        "counter": ["count", "total", "sum", "index", "position", "num"],
+        "string": ["text", "string", "name", "label", "title", "message", "str"],
+        "number": ["value", "amount", "quantity", "number", "num", "id", "index"],
+        "boolean": ["isValid", "isEnabled", "hasValue", "canEdit", "shouldUpdate", "flag"],
+        "array": ["items", "list", "collection", "elements", "data", "values"],
+        "object": ["config", "options", "settings", "object", "item", "data", "obj"],
+        "function": ["handler", "callback", "action", "function", "fn", "method"],
+        "event": ["event", "e", "evt", "context", "target", "source"],
+        "promise": ["promise", "result", "response", "data", "future"],
+        "error": ["error", "err", "exception", "ex", "failure"],
+        "node": ["node", "element", "item", "component", "widget"]
+      }
+    },
+    "functions": {
+      "obfuscated": ["_0x[a-f0-9]+", "function_\\w+", "F_\\w+"],
+      "meaningful": {
+        "event": ["handleEvent", "onEvent", "processEvent", "handleClick"],
+        "api": ["fetchData", "getData", "loadData", "saveData", "postData"],
+        "validation": ["validate", "check", "verify", "isValid", "confirm"],
+        "transform": ["transform", "convert", "parse", "format", "serialize"],
+        "init": ["initialize", "init", "setup", "configure", "boot"],
+        "cleanup": ["cleanup", "dispose", "destroy", "teardown", "reset"]
+      }
+    }
+  },
+  "frameworkConventions": {
+    "react": {
+      "components": "PascalCase",
+      "hooks": "camelCase starting with use",
+      "props": "camelCase",
+      "events": "camelCase with on prefix",
+      "constants": "UPPER_SNAKE_CASE or PascalCase"
+    },
+    "vue": {
+      "components": "PascalCase",
+      "methods": "camelCase",
+      "props": "kebab-case in template, camelCase in script",
+      "events": "kebab-case"
+    },
+    "angular": {
+      "components": "PascalCase",
+      "methods": "camelCase",
+      "properties": "camelCase",
+      "events": "camelCase or kebab-case"
+    },
+    "svelte": {
+      "components": "PascalCase",
+      "variables": "camelCase",
+      "events": "camelCase"
+    },
+    "nodejs": {
+      "modules": "kebab-case or camelCase",
+      "classes": "PascalCase",
+      "functions": "camelCase or PascalCase",
+      "constants": "UPPER_SNAKE_CASE"
+    }
+  },
+  "examples": [
+    {
+      "description": "Basic variable renaming",
+      "code": "const { Renamer } = require('./agents/renamer');\nconst agent = new Renamer();\nconst result = agent.analyze('function a(b) { return b + 1; }');\nconsole.log(result.renames);"
+    },
+    {
+      "description": "React-specific renaming with context",
+      "code": "const agent = new Renamer({ framework: 'react', semanticNaming: true });\nconst result = agent.analyze(code);\nconsole.log('Renames:', result.renames);\nconsole.log('Suggestions:', result.suggestions);"
+    },
+    {
+      "description": "Async analysis with caching",
+      "code": "const agent = new Renamer({ cacheEnabled: true });\n\nagent.on('progress', (p) => console.log(`${p.stage}: ${p.percent}%`));\n\nconst result = await agent.analyzeAsync(code);\nconsole.log('Cache stats:', agent.getCacheStats());"
+    },
+    {
+      "description": "Batch renaming analysis",
+      "code": "const agent = new Renamer();\nconst codes = [code1, code2, code3];\nconst results = agent.analyzeBatch(codes, { semanticNaming: true });\n\nresults.forEach((r, i) => {\n  console.log(`File ${i}: ${r.result.renames.length} renames`);\n});"
+    },
+    {
+      "description": "Apply renames to code",
+      "code": "const agent = new Renamer();\nconst result = agent.analyze(code);\n\nconst renamedCode = agent.applyRenames(code, result.renames);\nconsole.log(renamedCode);"
+    }
+  ],
+  "relatedAgents": [
+    "pattern-recognizer",
+    "string-decryptor",
+    "control-flow-analyzer",
+    "beautifier",
+    "validator",
+    "orchestrator"
+  ],
+  "category": "transformation",
+  "status": "stable",
+  "maintainers": [
+    {
+      "name": "Deobfuscation Team",
+      "email": "team@deobfuscator.dev",
+      "url": "https://deobfuscator.dev"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Lead Developer",
+      "role": "maintainer"
+    }
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/snippet-deobfuscator"
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "name": "constant-folding-skill",
+  "version": "3.0.0",
+  "description": "Advanced constant folding and expression evaluation skill for JavaScript deobfuscation",
+  "type": "skill",
+  "category": "optimization",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "capabilities": {
+    "arithmeticFolding": [
+      {
+        "name": "numeric-operations",
+        "description": "Evaluate constant numeric expressions",
+        "operators": ["+", "-", "*", "/", "%", "**"],
+        "examples": ["1 + 1 → 2", "10 * 5 → 50"]
+      },
+      {
+        "name": "bitwise-operations",
+        "description": "Evaluate constant bitwise expressions",
+        "operators": ["&", "|", "^", "~", "<<", ">>", ">>>"],
+        "examples": ["5 & 3 → 1", "8 << 2 → 32"]
+      },
+      {
+        "name": "unary-operations",
+        "description": "Evaluate constant unary expressions",
+        "operators": ["+", "-", "!", "~"],
+        "examples": ["-5 → -5", "!true → false"]
+      }
+    ],
+    "stringFolding": [
+      {
+        "name": "string-concatenation",
+        "description": "Evaluate constant string concatenation",
+        "examples": [
+          "'a' + 'b' → 'ab'",
+          "'hello' + ' ' + 'world' → 'hello world'"
+        ]
+      },
+      {
+        "name": "template-literals",
+        "description": "Evaluate constant template literals",
+        "examples": ["`hello ${'world'}` → 'hello world'"]
+      },
+      {
+        "name": "string-methods",
+        "description": "Evaluate constant string method calls",
+        "methods": [
+          "charAt",
+          "charCodeAt",
+          "substring",
+          "slice",
+          "toUpperCase",
+          "toLowerCase"
+        ],
+        "examples": ["'abc'.charAt(0) → 'a'"]
+      }
+    ],
+    "booleanFolding": [
+      {
+        "name": "logical-operations",
+        "description": "Evaluate constant logical expressions",
+        "operators": ["&&", "||", "!"],
+        "examples": ["true && false → false", "true || false → true"]
+      },
+      {
+        "name": "comparison-operations",
+        "description": "Evaluate constant comparison expressions",
+        "operators": ["==", "===", "!=", "!==", "<", ">", "<=", ">="],
+        "examples": ["5 > 3 → true", "'a' === 'b' → false"]
+      }
+    ],
+    "arrayFolding": [
+      {
+        "name": "array-methods",
+        "description": "Evaluate constant array operations",
+        "methods": ["join", "length", "indexOf"],
+        "examples": ["[1,2,3].length → 3", "[1,2,3].join('-') → '1-2-3'"]
+      }
+    ],
+    "objectFolding": [
+      {
+        "name": "property-access",
+        "description": "Evaluate constant property access",
+        "examples": ["({a: 1}).a → 1"]
+      },
+      {
+        "name": "object-methods",
+        "description": "Evaluate constant object method calls",
+        "methods": ["Object.keys", "Object.values"],
+        "examples": ["Object.keys({a: 1}) → ['a']"]
+      }
+    ]
+  },
+  "evaluation": {
+    "limits": {
+      "maxStringLength": 10000,
+      "maxArrayLength": 1000,
+      "maxRecursionDepth": 10,
+      "timeout": 5000
+    },
+    "safety": {
+      "checkSideEffects": true,
+      "preserveErrors": true,
+      "validateTypes": true,
+      "avoidDivisionByZero": true
+    },
+    "precision": {
+      "numericPrecision": 15,
+      "integerOnly": false,
+      "handleNaN": true,
+      "handleInfinity": true
+    }
+  },
+  "detection": {
+    "patterns": {
+      "binaryExpression": {
+        "condition": "both sides are literals",
+        "evaluable": true
+      },
+      "callExpression": {
+        "condition": "callee and arguments are constants",
+        "evaluable": true
+      },
+      "memberExpression": {
+        "condition": "object and property are constants",
+        "evaluable": true
+      }
+    }
+  },
+  "configuration": {
+    "foldArithmetic": true,
+    "foldStrings": true,
+    "foldBooleans": true,
+    "foldArrays": true,
+    "foldObjects": true,
+    "maxFoldDepth": 5,
+    "verboseLogging": false,
+    "timeout": 5000
+  },
+  "output": {
+    "includeFolded": true,
+    "includeValues": true,
+    "includeStatistics": true
+  },
+  "dependencies": {
+    "required": ["@babel/parser", "@babel/traverse", "@babel/generator"],
+    "optional": [],
+    "version": "Node.js >= 14.0.0"
+  },
+  "entry": "constant-folding.js",
+  "priority": 7,
+  "timeout": 5000,
+  "retries": 3,
+  "examples": [
+    {
+      "input": "1 + 2 * 3",
+      "output": "7",
+      "operation": "arithmetic-folding"
+    },
+    {
+      "input": "'hello' + ' ' + 'world'",
+      "output": "'hello world'",
+      "operation": "string-folding"
+    },
+    {
+      "input": "true && false",
+      "output": "false",
+      "operation": "boolean-folding"
+    }
+  ],
+  "metadata": {
+    "created": "2024-01-01T00:00:00.000Z",
+    "updated": "2024-01-15T00:00:00.000Z",
+    "tags": [
+      "constant-folding",
+      "optimization",
+      "evaluation",
+      "arithmetic",
+      "deobfuscation"
+    ],
+    "documentation": "./skills/constant-folding/skills.md"
+  }
+}

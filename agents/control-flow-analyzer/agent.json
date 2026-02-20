@@ -1,0 +1,612 @@
+{
+  "name": "control-flow-analyzer-agent",
+  "version": "3.0.0",
+  "description": "Production-grade specialized agent for analyzing and reconstructing control flow structures in JavaScript code. Supports branch analysis, loop detection, switch reconstruction, complexity calculation, and obfuscation pattern detection for real-world web applications.",
+  "type": "agent",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator"
+  },
+  "bugs": {
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator/issues"
+  },
+  "homepage": "https://github.com/snippet-deobfuscator/snippet-deobfuscator#readme",
+  "keywords": [
+    "control-flow",
+    "analysis",
+    "obfuscation",
+    "deobfuscation",
+    "complexity",
+    "branch-analysis",
+    "loop-detection",
+    "switch-reconstruction",
+    "javascript",
+    "static-analysis",
+    "ast",
+    "react",
+    "vue",
+    "angular",
+    "nodejs",
+    "security",
+    "web-application"
+  ],
+  "capabilities": [
+    "branch-analysis",
+    "loop-analysis",
+    "switch-reconstruction",
+    "flattening-detection",
+    "opaque-predicate-detection",
+    "dead-code-detection",
+    "control-flow-graph",
+    "path-analysis",
+    "cyclomatic-complexity",
+    "condition-analysis",
+    "try-catch-analysis",
+    "async-flow-analysis",
+    "exception-handling",
+    "state-machine-detection",
+    "loop-nesting-analysis",
+    "branch-prediction",
+    "code-coverage-analysis",
+    "function-call-graph",
+    "dependence-analysis",
+    "data-flow-analysis",
+    "security-analysis",
+    "performance-analysis",
+    "web-framework-analysis"
+  ],
+  "dependencies": [
+    "@babel/parser",
+    "@babel/traverse",
+    "@babel/generator"
+  ],
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "entry": "index.js",
+  "priority": 2,
+  "timeout": 45000,
+  "retries": 3,
+  "analysis": {
+    "branchAnalysis": {
+      "enabled": true,
+      "description": "Analyze if/else/ternary branches in the code",
+      "options": {
+        "detectNestedBranches": true,
+        "detectTernary": true,
+        "detectElseIf": true,
+        "analyzeConditions": true,
+        "extractConditions": true,
+        "trackBranchProbability": false,
+        "detectShortCircuit": true
+      }
+    },
+    "loopAnalysis": {
+      "enabled": true,
+      "description": "Analyze loop structures including for, while, do-while, for-in, for-of",
+      "options": {
+        "detectForLoops": true,
+        "detectWhileLoops": true,
+        "detectDoWhileLoops": true,
+        "detectForInLoops": true,
+        "detectForOfLoops": true,
+        "detectInfiniteLoops": true,
+        "analyzeLoopNesting": true,
+        "detectLoopEarlyExit": true,
+        "detectLoopInvariant": true,
+        "analyzeLoopComplexity": true
+      }
+    },
+    "switchAnalysis": {
+      "enabled": true,
+      "description": "Analyze switch statements and detect state machines",
+      "options": {
+        "detectSwitch": true,
+        "detectCaseValues": true,
+        "detectDefaultCase": true,
+        "detectFallThrough": true,
+        "analyzeDiscriminant": true,
+        "detectStateMachines": true,
+        "detectDispatchers": true,
+        "analyzeSwitchComplexity": true
+      }
+    },
+    "complexityAnalysis": {
+      "enabled": true,
+      "description": "Calculate code complexity metrics for maintainability",
+      "options": {
+        "cyclomaticComplexity": true,
+        "cognitiveComplexity": true,
+        "nestingDepth": true,
+        "maintainabilityIndex": true,
+        "halsteadMetrics": false,
+        "linesOfCode": true,
+        "parameterCount": true,
+        "functionLength": true,
+        "classCoupling": false
+      }
+    },
+    "obfuscationDetection": {
+      "enabled": true,
+      "description": "Detect control flow obfuscation patterns",
+      "options": {
+        "detectFlattening": true,
+        "detectOpaquePredicates": true,
+        "detectDeadCode": true,
+        "detectBogusControlFlow": true,
+        "detectUnreachableCode": true,
+        "detectControlFlowIntegrity": true,
+        "detectIndirectJump": true,
+        "detectDispatcherPattern": true,
+        "detectSplitPaths": true,
+        "detectJunkCode": true
+      }
+    },
+    "dataFlowAnalysis": {
+      "enabled": true,
+      "description": "Analyze data flow patterns and variable usage",
+      "options": {
+        "trackVariables": true,
+        "detectVariableScope": true,
+        "analyzeAssignments": true,
+        "detectSideEffects": true,
+        "analyzeDependencies": true,
+        "detectTaintedData": false,
+        "trackFunctionParameters": true,
+        "analyzeReturnValues": true
+      }
+    },
+    "asyncAnalysis": {
+      "enabled": true,
+      "description": "Analyze async/await and promise-based code flow",
+      "options": {
+        "detectAsyncFunctions": true,
+        "detectPromises": true,
+        "detectAwait": true,
+        "analyzePromiseChains": true,
+        "detectUnhandledPromises": true,
+        "analyzePromiseAll": true,
+        "analyzePromiseRace": true,
+        "detectCallbackHell": true,
+        "analyzeErrorPropagation": true
+      }
+    },
+    "exceptionAnalysis": {
+      "enabled": true,
+      "description": "Analyze exception handling patterns",
+      "options": {
+        "detectTryCatch": true,
+        "detectTryFinally": true,
+        "detectThrowStatements": true,
+        "analyzeCatchClauses": true,
+        "detectExceptionTypes": true,
+        "detectFinallyBlocks": true,
+        "detectExceptionSwallowing": true,
+        "analyzeErrorBoundaries": true
+      }
+    }
+  },
+  "configuration": {
+    "maxNestingDepth": {
+      "type": "number",
+      "default": 10,
+      "description": "Maximum nesting depth to analyze before stopping"
+    },
+    "maxSwitchCases": {
+      "type": "number",
+      "default": 100,
+      "description": "Maximum number of switch cases to analyze"
+    },
+    "detectInfiniteLoops": {
+      "type": "boolean",
+      "default": true,
+      "description": "Detect potential infinite loops in the code"
+    },
+    "detectRecursion": {
+      "type": "boolean",
+      "default": true,
+      "description": "Detect recursive function calls"
+    },
+    "trackComplexity": {
+      "type": "boolean",
+      "default": true,
+      "description": "Calculate and track complexity metrics"
+    },
+    "generateCallGraph": {
+      "type": "boolean",
+      "default": false,
+      "description": "Generate function call graph"
+    },
+    "analyzeDataFlow": {
+      "type": "boolean",
+      "default": false,
+      "description": "Perform data flow analysis"
+    },
+    "timeout": {
+      "type": "number",
+      "default": 45000,
+      "description": "Maximum execution time in milliseconds"
+    },
+    "verboseLogging": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging for debugging"
+    }
+  },
+  "output": {
+    "branches": {
+      "type": "array",
+      "description": "Array of detected branches with type, condition, and location information"
+    },
+    "loops": {
+      "type": "array",
+      "description": "Array of detected loops with type, nesting level, and location"
+    },
+    "switches": {
+      "type": "array",
+      "description": "Array of switch statements with case values and discriminant"
+    },
+    "flattening": {
+      "type": "array",
+      "description": "Array of detected control flow flattening patterns"
+    },
+    "opaquePredicates": {
+      "type": "array",
+      "description": "Array of detected opaque predicates with type and value"
+    },
+    "deadCode": {
+      "type": "array",
+      "description": "Array of detected dead code and unreachable code"
+    },
+    "complexity": {
+      "type": "object",
+      "description": "Complexity metrics including cyclomatic complexity and nesting depth"
+    },
+    "callGraph": {
+      "type": "object",
+      "description": "Function call graph if enabled"
+    },
+    "asyncFlows": {
+      "type": "array",
+      "description": "Async/await and promise flow information"
+    },
+    "exceptions": {
+      "type": "array",
+      "description": "Exception handling information"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Analysis statistics including counts of various structures"
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Warning messages generated during analysis"
+    },
+    "errors": {
+      "type": "array",
+      "description": "Error messages if analysis failed"
+    }
+  },
+  "metrics": {
+    "cyclomaticComplexity": {
+      "formula": "E - N + 2P where E=edges, N=nodes, P=connected components",
+      "description": "Measures the number of linearly independent paths through code",
+      "ranges": {
+        "1-10": "Low complexity, easy to maintain",
+        "11-20": "Moderate complexity, moderate maintainability",
+        "21-50": "High complexity, difficult to maintain",
+        "51+": "Very high complexity, extremely difficult to maintain"
+      }
+    },
+    "cognitiveComplexity": {
+      "description": "Measures how hard code is to understand structurally",
+      "formula": "Increments for nested structures, breaking statements, recursion",
+      "ranges": {
+        "1-15": "Low cognitive complexity, easy to understand",
+        "16-30": "Moderate cognitive complexity",
+        "31+": "High cognitive complexity, hard to understand"
+      }
+    },
+    "maintainabilityIndex": {
+      "formula": "171 - 5.2 * ln(Halstead Volume) - 0.23 * (Cyclomatic Complexity) - 16.2 * ln(Lines of Code)",
+      "description": "Composite metric of code maintainability on 0-100 scale",
+      "ranges": {
+        "85-100": "Excellent maintainability",
+        "65-84": "Good maintainability",
+        "45-64": "Moderate maintainability",
+        "0-44": "Poor maintainability, refactoring recommended"
+      }
+    },
+    "nestingDepth": {
+      "description": "Maximum depth of nested control structures",
+      "ranges": {
+        "1-4": "Low nesting, good readability",
+        "5-8": "Moderate nesting, consider refactoring",
+        "9+": "High nesting, refactoring recommended"
+      }
+    }
+  },
+  "obfuscationPatterns": {
+    "controlFlowFlattening": {
+      "description": "Transforms natural control flow into flat structure using switch statements or state machines",
+      "indicators": [
+        "Switch statements with many cases (typically >10)",
+        "State variables controlling flow",
+        "Opaque predicates in case values",
+        "Break statements at end of each case",
+        "Dispatcher functions",
+        "Variable-based state transitions"
+      ],
+      "severity": "high",
+      "impact": "Makes code flow difficult to follow, hides actual program logic"
+    },
+    "opaquePredicates": {
+      "description": "Conditional expressions that always evaluate to true or false, used to mislead analysis",
+      "indicators": [
+        "Constant boolean conditions (if(true), if(false))",
+        "Mathematical tautologies (x > 0 || x <= 0)",
+        "Environment checks (typeof window !== 'undefined')",
+        "Time-based conditions (Date.now() > 0)",
+        "Array.length comparisons"
+      ],
+      "severity": "medium",
+      "impact": "Creates unreachable code paths, confuses analysis tools"
+    },
+    "deadCode": {
+      "description": "Code that is never executed during program runtime",
+      "indicators": [
+        "Code after return statements in function body",
+        "Code in if(false) blocks",
+        "Unlabeled case statements after break",
+        "Functions never called from any entry point",
+        "Variables assigned but never used"
+      ],
+      "severity": "low",
+      "impact": "Increases code size, may contain hidden functionality"
+    },
+    "bogusControlFlow": {
+      "description": "Control flow that appears to do something but doesn't affect program logic",
+      "indicators": [
+        "Empty try-catch blocks with no actual handling",
+        "Redundant conditional branches",
+        "Dummy loops with no side effects",
+        "Dead jumps to valid locations",
+        "Placeholder code"
+      ],
+      "severity": "medium",
+      "impact": "Confuses code readers, may hide actual intent"
+    },
+    "indirectJump": {
+      "description": "Jump to computed or dynamic targets rather than static ones",
+      "indicators": [
+        "Computed goto patterns",
+        "Jump tables with dynamic indices",
+        "Function pointers",
+        "Dynamic dispatch"
+      ],
+      "severity": "medium",
+      "impact": "Makes control flow non-linear and harder to trace"
+    },
+    "dispatcherPattern": {
+      "description": "Central dispatcher routing to different handlers based on input",
+      "indicators": [
+        "Large switch/case in single function",
+        "Object/Map-based dispatch tables",
+        "Event dispatchers",
+        "Message handlers"
+      ],
+      "severity": "low",
+      "impact": "Can indicate obfuscation when combined with other patterns"
+    }
+  },
+  "webFrameworkSupport": {
+    "react": {
+      "detectHooks": true,
+      "detectUseState": true,
+      "detectUseEffect": true,
+      "detectUseCallback": true,
+      "detectUseMemo": true,
+      "detectUseRef": true,
+      "detectUseContext": true,
+      "detectUseReducer": true,
+      "detectCustomHooks": true,
+      "detectComponentLifecycle": true,
+      "detectEventHandlers": true,
+      "detectConditionalRendering": true,
+      "detectStateTransitions": true,
+      "detectEffectDependencies": true,
+      "detectMemoization": true,
+      "detectRenderOptimization": false
+    },
+    "vue": {
+      "detectReactive": true,
+      "detectComputed": true,
+      "detectWatch": true,
+      "detectWatchEffect": true,
+      "detectLifecycleHooks": true,
+      "detectMethods": true,
+      "detectTemplateRefs": true,
+      "detectProvideInject": true,
+      "detectComposables": true,
+      "detectPiniaStores": false,
+      "detectVuexActions": false,
+      "detectAsyncData": false
+    },
+    "angular": {
+      "detectDecorators": true,
+      "detectNgOnInit": true,
+      "detectNgOnChanges": true,
+      "detectNgOnDestroy": true,
+      "detectChangeDetection": true,
+      "detectRxJSObservables": true,
+      "detectDependencyInjection": true,
+      "detectPipes": true,
+      "detectServices": true,
+      "detectComponents": true,
+      "detectDirectives": true,
+      "detectModules": true,
+      "detectRoutes": true,
+      "detectHttpClient": true
+    },
+    "svelte": {
+      "detectReactiveStatements": true,
+      "detectLifecycleHooks": true,
+      "detectStores": true,
+      "detectActions": true,
+      "detectTransitions": true,
+      "detectBindings": true,
+      "detectEventHandlers": true,
+      "detectProps": true,
+      "detectSlots": true
+    },
+    "nodejs": {
+      "detectExpressRoutes": true,
+      "detectMiddleware": true,
+      "detectAsyncHandlers": true,
+      "detectEventEmitters": true,
+      "detectStreamPipes": true,
+      "detectCallbackPatterns": true,
+      "detectRESTEndpoints": true,
+      "detectWebSocketHandlers": false,
+      "detectGraphQLResolvers": false,
+      "detectDatabaseOperations": false,
+      "detectAuthentication": true,
+      "detectAuthorization": true
+    },
+    "nextjs": {
+      "detectGetStaticProps": true,
+      "detectGetServerSideProps": true,
+      "detectGetStaticPaths": true,
+      "detectAPIRoutes": true,
+      "detectAppRouter": true,
+      "detectPagesRouter": true,
+      "detectServerComponents": false,
+      "detectClientComponents": true,
+      "detectDynamicRoutes": true
+    }
+  },
+  "securityAnalysis": {
+    "detectCodeInjection": true,
+    "detectEvalUsage": true,
+    "detectDynamicCodeExecution": true,
+    "detectPathTraversal": true,
+    "detectCommandInjection": true,
+    "detectPrototypePollution": true,
+    "detectInsecureDeserialization": true,
+    "detectXSSPatterns": true,
+    "detectSensitiveDataExposure": true,
+    "detectHardcodedSecrets": true,
+    "detectWeakCryptography": true,
+    "detectInsecureRandom": true,
+    "detectDOMXSS": true,
+    "detectClientSideInjection": true
+  },
+  "performanceAnalysis": {
+    "detectExpensiveOperations": true,
+    "detectMemoryLeaks": false,
+    "detectCircularDependencies": true,
+    "detectUnoptimizedLoops": true,
+    "detectInefficientDataStructures": false,
+    "detectRepeatedComputations": true,
+    "detectBlockingOperations": true,
+    "detectNPlusOneQueries": false,
+    "detectUnnecessaryRerenders": false
+  },
+  "realWorldScenarios": {
+    "webApplications": {
+      "description": "Analysis of modern web application codebases",
+      "frameworks": ["react", "vue", "angular", "svelte", "nextjs"],
+      "commonPatterns": [
+        "Component-based architecture",
+        "State management systems",
+        "Routing implementations",
+        "API integration layers",
+        "Form handling",
+        "Authentication flows"
+      ]
+    },
+    "nodejsBackend": {
+      "description": "Analysis of Node.js backend applications",
+      "frameworks": ["express", "koa", "fastify", "nestjs"],
+      "commonPatterns": [
+        "REST API endpoints",
+        "Middleware chains",
+        "Database operations",
+        "Authentication/Authorization",
+        "Error handling",
+        "File operations"
+      ]
+    },
+    "minifiedCode": {
+      "description": "Analysis of minified and obfuscated code",
+      "techniques": [
+        "Variable name reconstruction",
+        "Control flow analysis",
+        "String decryption",
+        "Pattern recognition",
+        "Framework detection"
+      ]
+    },
+    "malwareAnalysis": {
+      "description": "Security-focused analysis of suspicious code",
+      "capabilities": [
+        "Obfuscation detection",
+        "Suspicious API usage",
+        "Network communication patterns",
+        "Code injection vectors",
+        "Data exfiltration detection"
+      ]
+    }
+  },
+  "examples": [
+    {
+      "description": "Basic control flow analysis",
+      "code": "const ControlFlowAnalyzer = require('./agents/control-flow-analyzer');\nconst agent = new ControlFlowAnalyzer();\nconst result = agent.analyze('if (x > 5) { foo(); } else { bar(); }');\nconsole.log(result.branches);\nconsole.log(result.complexity);"
+    },
+    {
+      "description": "Detect control flow obfuscation in minified code",
+      "code": "const agent = new ControlFlowAnalyzer({ detectFlattening: true, detectOpaquePredicates: true });\nconst result = agent.analyze(obfuscatedCode);\nif (result.flattening.length > 0) {\n  console.warn('Control flow flattening detected!');\n}\nif (result.opaquePredicates.length > 0) {\n  console.warn('Opaque predicates found:', result.opaquePredicates.length);\n}\nconsole.log('Cyclomatic complexity:', result.complexity.cyclomatic);"
+    },
+    {
+      "description": "Full analysis with web framework detection",
+      "code": "const agent = new ControlFlowAnalyzer({\n  maxNestingDepth: 15,\n  detectInfiniteLoops: true,\n  trackComplexity: true,\n  generateCallGraph: true,\n  analyzeDataFlow: true,\n  webFrameworkSupport: true\n});\nconst result = agent.analyze(code, { verbose: true });\nconsole.log('Branches:', result.branches.length);\nconsole.log('Loops:', result.loops.length);\nconsole.log('Complexity:', result.complexity);\nconsole.log('Web Framework:', result.webFramework);\nconsole.log('Security Issues:', result.securityIssues);"
+    },
+    {
+      "description": "Analyze React application component",
+      "code": "const agent = new ControlFlowAnalyzer({ webFrameworkSupport: true });\nconst result = agent.analyze(reactComponentCode);\nif (result.webFramework?.react) {\n  console.log('React hooks detected:', result.webFramework.react.hooks);\n  console.log('State management:', result.webFramework.react.stateManagement);\n  console.log('Effect dependencies:', result.webFramework.react.effectDependencies);\n}"
+    },
+    {
+      "description": "Security analysis of code",
+      "code": "const agent = new ControlFlowAnalyzer({ securityAnalysis: true });\nconst result = agent.analyze(code);\nif (result.securityIssues.length > 0) {\n  console.warn('Security issues found:');\n  result.securityIssues.forEach(issue => {\n    console.log(`  - [${issue.severity}] ${issue.type}: ${issue.description}`);\n  });\n}"
+    }
+  ],
+  "relatedAgents": [
+    "string-decryptor",
+    "pattern-recognizer",
+    "renamer",
+    "validator",
+    "orchestrator"
+  ],
+  "category": "analysis",
+  "status": "stable",
+  "maintainers": [
+    {
+      "name": "Deobfuscation Team",
+      "email": "team@deobfuscator.dev",
+      "url": "https://deobfuscator.dev"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Lead Developer",
+      "role": "maintainer"
+    }
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/snippet-deobfuscator"
+  }
+}

@@ -1,0 +1,211 @@
+{
+  "name": "string-array-skill",
+  "version": "3.0.0",
+  "description": "Advanced string array deobfuscation skill for detecting and decoding string array obfuscation patterns in JavaScript",
+  "type": "skill",
+  "category": "deobfuscation",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "capabilities": {
+    "arrayPatterns": [
+      {
+        "name": "string-array",
+        "description": "String array with shuffled or rotated order",
+        "confidence": 0.95
+      },
+      {
+        "name": "lookup-table",
+        "description": "Key-value lookup table for string decoding",
+        "confidence": 0.9
+      },
+      {
+        "name": "base64-array",
+        "description": "Array of base64 encoded strings",
+        "confidence": 0.85
+      },
+      {
+        "name": "hex-array",
+        "description": "Array of hex encoded strings",
+        "confidence": 0.85
+      },
+      {
+        "name": "rotated-array",
+        "description": "Array with rotation/shift obfuscation",
+        "confidence": 0.8
+      }
+    ],
+    "accessorPatterns": [
+      {
+        "name": "index-access",
+        "description": "Direct numeric index access to string array",
+        "patterns": ["_0x1234[0]", "strings[5]"],
+        "confidence": 0.9
+      },
+      {
+        "name": "function-wrapper",
+        "description": "Function wrapper around array access",
+        "patterns": ["getString(index)", "_0xabcd(i)"],
+        "confidence": 0.85
+      },
+      {
+        "name": "computed-access",
+        "description": "Computed index with offset or calculation",
+        "patterns": ["arr[idx - 0x100]", "strings[i ^ key]"],
+        "confidence": 0.75
+      },
+      {
+        "name": "chained-access",
+        "description": "Chained function calls for string retrieval",
+        "patterns": ["get(index).toString()"],
+        "confidence": 0.7
+      }
+    ],
+    "decodingMethods": [
+      {
+        "name": "direct-replacement",
+        "description": "Direct string replacement from array values",
+        "confidence": 0.95
+      },
+      {
+        "name": "base64-decode",
+        "description": "Base64 decode array values before replacement",
+        "confidence": 0.9
+      },
+      {
+        "name": "rc4-decode",
+        "description": "RC4 decryption of array values",
+        "confidence": 0.75
+      },
+      {
+        "name": "custom-cipher",
+        "description": "Custom cipher decryption",
+        "confidence": 0.6
+      },
+      {
+        "name": "multi-layer",
+        "description": "Multi-layer decoding (base64 then rot13, etc.)",
+        "confidence": 0.7
+      }
+    ],
+    "shuffleDetection": [
+      {
+        "name": "rotation-shuffle",
+        "description": "Array rotation during initialization",
+        "patterns": ["push(shift())", "unshift(pop())"],
+        "confidence": 0.9
+      },
+      {
+        "name": "swap-shuffle",
+        "description": "Element swap-based shuffling",
+        "confidence": 0.85
+      },
+      {
+        "name": "reverse-shuffle",
+        "description": "Array reversal obfuscation",
+        "confidence": 0.9
+      }
+    ]
+  },
+  "detection": {
+    "patterns": {
+      "stringArrayDeclaration": {
+        "regex": "var\\s+_0x[a-f0-9]+\\s*=\\s*\\[",
+        "minLength": 5,
+        "maxStrings": 10000
+      },
+      "accessorFunction": {
+        "regex": "function\\s+_0x[a-f0-9]+\\s*\\(\\s*\\w+\\s*\\)",
+        "hasArrayAccess": true
+      },
+      "shuffleCall": {
+        "regex": "\\(function\\s*\\(\\s*\\)\\s*\\{[^}]+push\\([^)]*shift\\(\\)",
+        "detectRotation": true
+      },
+      "getStringPattern": {
+        "regex": "_0x[a-f0-9]+\\s*\\(\\s*\\d+\\s*\\)",
+        "extractIndex": true
+      }
+    },
+    "heuristics": {
+      "arraySizeThreshold": 3,
+      "accessFrequencyThreshold": 2,
+      "namingConventions": ["_0x", "_0X", "strings", "strArr", "_str"],
+      "maxContextLength": 50000,
+      "detectSelfInvoking": true
+    },
+    "validation": {
+      "validateStrings": true,
+      "checkPrintableRatio": true,
+      "printableThreshold": 0.7,
+      "validateUTF8": true,
+      "maxStringLength": 100000
+    }
+  },
+  "configuration": {
+    "extraction": {
+      "parseEntireFile": true,
+      "followRequires": false,
+      "handleModules": true,
+      "extractFromEval": true
+    },
+    "replacement": {
+      "inlineStrings": true,
+      "removeArrayAfterInline": true,
+      "removeAccessorFunctions": true,
+      "preserveOriginalComments": false
+    },
+    "performance": {
+      "maxArraySize": 100000,
+      "timeout": 30000,
+      "cacheDecodedStrings": true,
+      "parallelProcessing": true
+    },
+    "output": {
+      "includeStatistics": true,
+      "includeDecodedStrings": true,
+      "includeWarnings": true,
+      "includeMapping": false
+    }
+  },
+  "dependencies": {
+    "required": [],
+    "optional": ["acorn", "escodegen"],
+    "version": "Node.js >= 14.0.0"
+  },
+  "entry": "string-array.js",
+  "priority": 2,
+  "timeout": 30000,
+  "retries": 3,
+  "examples": [
+    {
+      "input": "var _0x4a5b=['Hello','World'];console.log(_0x4a5b[0]+' '+_0x4a5b[1]);",
+      "output": "console.log('Hello World');",
+      "method": "direct-replacement",
+      "confidence": 0.95
+    },
+    {
+      "input": "var _0xf1=['SGVsbG8=','V29ybGQ='];function _0x2a(i){return atob(_0xf1[i]);}console.log(_0x2a(0));",
+      "output": "console.log('Hello');",
+      "method": "base64-decode",
+      "confidence": 0.9
+    },
+    {
+      "input": "var arr=['o','l','l','e','H'];arr.reverse();console.log(arr.join(''));",
+      "output": "console.log('Hello');",
+      "method": "reverse-shuffle",
+      "confidence": 0.9
+    }
+  ],
+  "metadata": {
+    "created": "2024-01-01T00:00:00.000Z",
+    "updated": "2024-01-15T00:00:00.000Z",
+    "tags": [
+      "string-array",
+      "deobfuscation",
+      "array-inline",
+      "lookup-table",
+      "obfuscator-io"
+    ],
+    "documentation": "./skills/string-array/skills.md"
+  }
+}

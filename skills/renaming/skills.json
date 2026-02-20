@@ -1,0 +1,235 @@
+{
+  "name": "renaming-skill",
+  "version": "3.0.0",
+  "description": "Advanced variable and function renaming skill for JavaScript deobfuscation",
+  "type": "skill",
+  "category": "deobfuscation",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "capabilities": {
+    "variableRenaming": [
+      {
+        "name": "single-letter",
+        "description": "Rename single-letter variables to meaningful names",
+        "patterns": ["a", "b", "c", "x", "y", "z", "i", "j", "k"],
+        "confidence": "high"
+      },
+      {
+        "name": "two-letter",
+        "description": "Rename two-letter obfuscated variables",
+        "patterns": ["_0x", "_0X", "aa", "ab", "ba"],
+        "confidence": "high"
+      },
+      {
+        "name": "hex-prefixed",
+        "description": "Rename hex-prefixed obfuscated names",
+        "patterns": ["_0x1a2b", "_0xabcd"],
+        "confidence": "high"
+      },
+      {
+        "name": "underscore-prefixed",
+        "description": "Rename underscore-prefixed names",
+        "patterns": ["_a", "_b", "_temp"],
+        "confidence": "medium"
+      }
+    ],
+    "functionRenaming": [
+      {
+        "name": "anonymous-functions",
+        "description": "Name anonymous functions based on context",
+        "confidence": "medium"
+      },
+      {
+        "name": "callback-functions",
+        "description": "Name callback functions based on event",
+        "patterns": ["onClick", "onSubmit", "onError"],
+        "confidence": "high"
+      },
+      {
+        "name": "event-handlers",
+        "description": "Name event handler functions",
+        "patterns": ["handleClick", "handleSubmit"],
+        "confidence": "high"
+      },
+      {
+        "name": "async-functions",
+        "description": "Name async functions with context",
+        "confidence": "medium"
+      }
+    ],
+    "propertyRenaming": [
+      {
+        "name": "object-properties",
+        "description": "Rename object properties with semantic names",
+        "confidence": "medium"
+      },
+      {
+        "name": "class-properties",
+        "description": "Rename class properties based on usage",
+        "confidence": "medium"
+      },
+      {
+        "name": "method-names",
+        "description": "Rename methods with descriptive names",
+        "confidence": "high"
+      }
+    ],
+    "semanticInference": [
+      {
+        "name": "type-inference",
+        "description": "Infer names from variable types",
+        "confidence": "high"
+      },
+      {
+        "name": "usage-analysis",
+        "description": "Analyze usage patterns for naming",
+        "confidence": "medium"
+      },
+      {
+        "name": "context-analysis",
+        "description": "Use surrounding context for naming",
+        "confidence": "medium"
+      }
+    ],
+    "frameworkSpecific": [
+      {
+        "name": "react-naming",
+        "description": "Apply React naming conventions",
+        "patterns": ["useState", "useEffect", "handleClick"],
+        "confidence": "high"
+      },
+      {
+        "name": "vue-naming",
+        "description": "Apply Vue naming conventions",
+        "patterns": ["onMounted", "computed", "methods"],
+        "confidence": "high"
+      },
+      {
+        "name": "angular-naming",
+        "description": "Apply Angular naming conventions",
+        "patterns": ["ngOnInit", "ngOnDestroy"],
+        "confidence": "high"
+      },
+      {
+        "name": "nodejs-naming",
+        "description": "Apply Node.js naming conventions",
+        "patterns": ["req", "res", "next"],
+        "confidence": "high"
+      }
+    ]
+  },
+  "namingDatabase": {
+    "singleLetterMappings": {
+      "a": ["array", "argument", "accumulator"],
+      "b": ["buffer", "boolean", "base"],
+      "c": ["count", "char", "config", "context"],
+      "d": ["data", "date", "delta"],
+      "e": ["error", "event", "element"],
+      "f": ["function", "file", "flag"],
+      "g": ["global", "group", "graph"],
+      "h": ["handler", "hash", "height"],
+      "i": ["index", "iterator", "item"],
+      "j": ["index", "json", "job"],
+      "k": ["key", "counter"],
+      "l": ["length", "list", "line"],
+      "m": ["map", "match", "message"],
+      "n": ["name", "number", "node"],
+      "o": ["object", "option", "offset"],
+      "p": ["param", "position", "pointer"],
+      "q": ["query", "queue", "quote"],
+      "r": ["result", "row", "request"],
+      "s": ["string", "state", "size"],
+      "t": ["temp", "type", "time"],
+      "u": ["url", "user", "unit"],
+      "v": ["value", "variable", "view"],
+      "w": ["width", "window", "weight"],
+      "x": ["xCoord", "index", "unknown"],
+      "y": ["yCoord", "index", "year"],
+      "z": ["zero", "zone", "zip"]
+    },
+    "commonPatterns": {
+      "loop": {
+        "patterns": ["for", "while", "forEach"],
+        "suggestions": ["i", "j", "k", "index", "item", "element"]
+      },
+      "array": {
+        "patterns": ["[", "Array", "push", "pop", "map"],
+        "suggestions": ["items", "list", "array", "data", "elements"]
+      },
+      "object": {
+        "patterns": ["{", "Object", "keys", "values"],
+        "suggestions": ["obj", "data", "config", "options"]
+      },
+      "string": {
+        "patterns": ["'", "\"", "`", "concat", "split"],
+        "suggestions": ["str", "text", "value", "content"]
+      },
+      "function": {
+        "patterns": ["=>", "function", "return"],
+        "suggestions": ["handler", "callback", "func", "fn"]
+      }
+    },
+    "contextMappings": {
+      "dom": {
+        "patterns": ["document", "window", "element"],
+        "suggestions": ["element", "node", "container", "wrapper"]
+      },
+      "network": {
+        "patterns": ["fetch", "xhr", "response"],
+        "suggestions": ["response", "data", "result", "payload"]
+      },
+      "event": {
+        "patterns": ["addEventListener", "onClick", "on"],
+        "suggestions": ["handler", "listener", "callback", "event"]
+      },
+      "storage": {
+        "patterns": ["localStorage", "sessionStorage", "cookie"],
+        "suggestions": ["storage", "cache", "data", "persisted"]
+      }
+    }
+  },
+  "configuration": {
+    "namingStyle": "camelCase",
+    "preserveBuiltins": true,
+    "preserveExports": true,
+    "preserveImports": true,
+    "minConfidence": 0.5,
+    "maxNameLength": 30,
+    "avoidCollisions": true,
+    "verboseLogging": false,
+    "timeout": 30000
+  },
+  "output": {
+    "includeMappings": true,
+    "includeConfidence": true,
+    "includeContext": true,
+    "includeStatistics": true
+  },
+  "dependencies": {
+    "required": ["@babel/parser", "@babel/traverse", "@babel/generator"],
+    "optional": [],
+    "version": "Node.js >= 14.0.0"
+  },
+  "entry": "renaming.js",
+  "priority": 5,
+  "timeout": 30000,
+  "retries": 3,
+  "examples": [
+    {
+      "input": "var a = 1, b = 2;",
+      "output": "var firstValue = 1, secondValue = 2;",
+      "mappings": { "a": "firstValue", "b": "secondValue" }
+    },
+    {
+      "input": "function _0x123(a, b) { return a + b; }",
+      "output": "function addNumbers(first, second) { return first + second; }",
+      "mappings": { "_0x123": "addNumbers", "a": "first", "b": "second" }
+    }
+  ],
+  "metadata": {
+    "created": "2024-01-01T00:00:00.000Z",
+    "updated": "2024-01-15T00:00:00.000Z",
+    "tags": ["renaming", "deobfuscation", "semantic", "variables", "functions"],
+    "documentation": "./skills/renaming/skills.md"
+  }
+}

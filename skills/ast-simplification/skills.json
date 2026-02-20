@@ -1,0 +1,192 @@
+{
+  "name": "ast-simplification-skill",
+  "version": "3.0.0",
+  "description": "Advanced AST simplification skill for transforming complex AST structures into simpler, more readable forms",
+  "type": "skill",
+  "category": "deobfuscation",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "capabilities": {
+    "simplificationTypes": [
+      {
+        "name": "expression-simplification",
+        "description": "Simplify complex expressions into simpler forms",
+        "confidence": 0.9
+      },
+      {
+        "name": "control-flow-simplification",
+        "description": "Simplify control flow structures",
+        "confidence": 0.85
+      },
+      {
+        "name": "variable-simplification",
+        "description": "Simplify variable declarations and assignments",
+        "confidence": 0.9
+      },
+      {
+        "name": "function-simplification",
+        "description": "Simplify function declarations and expressions",
+        "confidence": 0.85
+      },
+      {
+        "name": "conditional-simplification",
+        "description": "Simplify conditional expressions and statements",
+        "confidence": 0.9
+      }
+    ],
+    "transformations": [
+      {
+        "name": "sequence-to-statements",
+        "description": "Convert sequence expressions to separate statements",
+        "confidence": 0.95
+      },
+      {
+        "name": "conditional-to-if",
+        "description": "Convert ternary to if-else statements",
+        "confidence": 0.85
+      },
+      {
+        "name": "iife-to-block",
+        "description": "Convert IIFEs to block statements where possible",
+        "confidence": 0.8
+      },
+      {
+        "name": "comma-unrolling",
+        "description": "Unroll comma expressions into separate statements",
+        "confidence": 0.95
+      },
+      {
+        "name": "logical-simplification",
+        "description": "Simplify logical expressions",
+        "confidence": 0.9
+      }
+    ],
+    "normalizations": [
+      {
+        "name": "arrow-function-normalize",
+        "description": "Normalize arrow functions to consistent form",
+        "confidence": 0.9
+      },
+      {
+        "name": "template-literal-normalize",
+        "description": "Normalize template literals to string concatenation",
+        "confidence": 0.85
+      },
+      {
+        "name": "destructuring-normalize",
+        "description": "Normalize destructuring patterns",
+        "confidence": 0.8
+      },
+      {
+        "name": "spread-normalize",
+        "description": "Normalize spread operator usage",
+        "confidence": 0.85
+      }
+    ]
+  },
+  "detection": {
+    "patterns": {
+      "sequenceExpression": {
+        "description": "Detect comma-separated expression sequences",
+        "minExpressions": 2
+      },
+      "nestedConditional": {
+        "description": "Detect nested ternary expressions",
+        "maxDepth": 3
+      },
+      "complexIIFE": {
+        "description": "Detect immediately invoked function expressions",
+        "checkInline": true
+      },
+      "commaInReturn": {
+        "description": "Detect comma expressions in return statements",
+        "extractValue": true
+      }
+    },
+    "heuristics": {
+      "maxNestingDepth": 10,
+      "preserveSideEffects": true,
+      "maintainSemantics": true,
+      "checkVariableScope": true
+    },
+    "validation": {
+      "validateOutput": true,
+      "checkSyntax": true,
+      "compareBehavior": true,
+      "maxOutputSize": 5000000
+    }
+  },
+  "configuration": {
+    "simplification": {
+      "unrollSequences": true,
+      "convertTernary": false,
+      "normalizeArrows": true,
+      "inlineSimpleFunctions": false,
+      "extractExpressions": true
+    },
+    "formatting": {
+      "indentStyle": "space",
+      "indentSize": 2,
+      "semicolons": true,
+      "quoteStyle": "single"
+    },
+    "safety": {
+      "preserveComments": true,
+      "preserveDirectives": true,
+      "preserveSourceMaps": false,
+      "checkSideEffects": true
+    },
+    "performance": {
+      "timeout": 30000,
+      "maxNodes": 100000,
+      "cacheResults": true
+    },
+    "output": {
+      "includeStatistics": true,
+      "includeTransformations": true,
+      "includeWarnings": true,
+      "includeSimplifiedNodes": true
+    }
+  },
+  "dependencies": {
+    "required": [],
+    "optional": ["acorn", "escodegen", "babel-parser"],
+    "version": "Node.js >= 14.0.0"
+  },
+  "entry": "ast-simplification.js",
+  "priority": 4,
+  "timeout": 30000,
+  "retries": 3,
+  "examples": [
+    {
+      "input": "a = (b++, c++, d);",
+      "output": "b++; c++; a = d;",
+      "method": "comma-unrolling",
+      "confidence": 0.95
+    },
+    {
+      "input": "x ? y ? a : b : c;",
+      "output": "if (x) { if (y) { a; } else { b; } } else { c; }",
+      "method": "conditional-to-if",
+      "confidence": 0.85
+    },
+    {
+      "input": "(function() { var x = 1; return x; })();",
+      "output": "{ var x = 1; x; }",
+      "method": "iife-to-block",
+      "confidence": 0.8
+    }
+  ],
+  "metadata": {
+    "created": "2024-01-01T00:00:00.000Z",
+    "updated": "2024-01-15T00:00:00.000Z",
+    "tags": [
+      "ast-simplification",
+      "deobfuscation",
+      "code-transformation",
+      "normalization",
+      "readability"
+    ],
+    "documentation": "./skills/ast-simplification/skills.md"
+  }
+}

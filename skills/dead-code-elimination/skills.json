@@ -1,0 +1,210 @@
+{
+  "name": "dead-code-elimination-skill",
+  "version": "3.0.0",
+  "description": "Advanced dead code detection and elimination skill for JavaScript deobfuscation",
+  "type": "skill",
+  "category": "optimization",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "capabilities": {
+    "unreachableCode": [
+      {
+        "name": "post-return",
+        "description": "Detect and remove code after return statements",
+        "patterns": ["return[^;]*;[^}]*}"],
+        "severity": "low",
+        "removable": true
+      },
+      {
+        "name": "post-break",
+        "description": "Detect and remove code after break statements",
+        "patterns": ["break;[^}]*}"],
+        "severity": "low",
+        "removable": true
+      },
+      {
+        "name": "post-continue",
+        "description": "Detect and remove code after continue statements",
+        "patterns": ["continue;[^}]*}"],
+        "severity": "low",
+        "removable": true
+      },
+      {
+        "name": "post-throw",
+        "description": "Detect and remove code after throw statements",
+        "patterns": ["throw[^;]*;[^}]*}"],
+        "severity": "low",
+        "removable": true
+      }
+    ],
+    "conditionalDead": [
+      {
+        "name": "false-branch",
+        "description": "Detect if(false) branches that never execute",
+        "patterns": ["if\\s*\\(\\s*false\\s*\\)"],
+        "severity": "medium",
+        "removable": true
+      },
+      {
+        "name": "true-branch-else",
+        "description": "Detect else branches after if(true)",
+        "patterns": ["if\\s*\\(\\s*true\\s*\\)"],
+        "severity": "medium",
+        "removable": true
+      },
+      {
+        "name": "constant-condition",
+        "description": "Detect constant condition branches",
+        "patterns": ["if\\s*\\(\\s*[01]\\s*\\)"],
+        "severity": "medium",
+        "removable": true
+      }
+    ],
+    "unusedDeclarations": [
+      {
+        "name": "unused-variables",
+        "description": "Detect variables that are declared but never used",
+        "severity": "low",
+        "removable": true
+      },
+      {
+        "name": "unused-functions",
+        "description": "Detect functions that are defined but never called",
+        "severity": "low",
+        "removable": true
+      },
+      {
+        "name": "unused-parameters",
+        "description": "Detect function parameters that are never used",
+        "severity": "low",
+        "removable": true
+      }
+    ],
+    "semanticDead": [
+      {
+        "name": "empty-blocks",
+        "description": "Detect empty block statements",
+        "patterns": ["\\{\\s*\\}"],
+        "severity": "low",
+        "removable": true
+      },
+      {
+        "name": "empty-statements",
+        "description": "Detect empty statements (lone semicolons)",
+        "patterns": [";\\s*;"],
+        "severity": "low",
+        "removable": true
+      },
+      {
+        "name": "useless-operations",
+        "description": "Detect operations with no side effects",
+        "severity": "low",
+        "removable": true
+      }
+    ]
+  },
+  "detection": {
+    "patterns": {
+      "unreachableAfterReturn": {
+        "regex": "return[^;]*;(?=[^}]*\\})",
+        "context": "block",
+        "method": "ast"
+      },
+      "unreachableAfterBreak": {
+        "regex": "break;(?=[^}]*\\})",
+        "context": "block",
+        "method": "ast"
+      },
+      "falseCondition": {
+        "regex": "if\\s*\\(\\s*false\\s*\\)",
+        "context": "statement",
+        "method": "ast"
+      },
+      "emptyBlock": {
+        "regex": "\\{\\s*\\}",
+        "context": "block",
+        "method": "ast"
+      }
+    },
+    "analysis": {
+      "controlFlowAnalysis": true,
+      "dataFlowAnalysis": true,
+      "livenessAnalysis": true,
+      "reachabilityAnalysis": true
+    },
+    "heuristics": {
+      "minBlockStatements": 0,
+      "checkSideEffects": true,
+      "preserveDebugCode": false
+    }
+  },
+  "elimination": {
+    "strategies": {
+      "removeEntireBlock": {
+        "description": "Remove entire unreachable blocks",
+        "safe": true
+      },
+      "simplifyCondition": {
+        "description": "Replace constant conditions with their body",
+        "safe": true
+      },
+      "removeStatement": {
+        "description": "Remove individual dead statements",
+        "safe": true
+      }
+    },
+    "safety": {
+      "preserveSemantics": true,
+      "checkSideEffects": true,
+      "validateOutput": true,
+      "generateMappings": true
+    }
+  },
+  "configuration": {
+    "removeUnusedVariables": true,
+    "removeUnusedFunctions": true,
+    "removeEmptyBlocks": true,
+    "removeConstantBranches": true,
+    "verboseLogging": false,
+    "timeout": 30000
+  },
+  "output": {
+    "includeRemoved": true,
+    "includeStatistics": true,
+    "includeMappings": true,
+    "includeValidation": true
+  },
+  "dependencies": {
+    "required": ["@babel/parser", "@babel/traverse", "@babel/generator"],
+    "optional": [],
+    "version": "Node.js >= 14.0.0"
+  },
+  "entry": "dead-code-elimination.js",
+  "priority": 6,
+  "timeout": 30000,
+  "retries": 3,
+  "examples": [
+    {
+      "input": "if(false) { console.log('never'); }",
+      "output": "",
+      "removed": ["if-false-branch"]
+    },
+    {
+      "input": "function test() { return 1; console.log('dead'); }",
+      "output": "function test() { return 1; }",
+      "removed": ["post-return-code"]
+    }
+  ],
+  "metadata": {
+    "created": "2024-01-01T00:00:00.000Z",
+    "updated": "2024-01-15T00:00:00.000Z",
+    "tags": [
+      "dead-code",
+      "optimization",
+      "elimination",
+      "cleanup",
+      "deobfuscation"
+    ],
+    "documentation": "./skills/dead-code-elimination/skills.md"
+  }
+}

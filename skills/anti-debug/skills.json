@@ -1,0 +1,249 @@
+{
+  "name": "anti-debug-skill",
+  "version": "3.0.0",
+  "description": "Advanced anti-debugging technique detection and bypass skill for JavaScript deobfuscation",
+  "type": "skill",
+  "category": "security",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "capabilities": {
+    "debuggerDetection": [
+      {
+        "name": "debugger-statement",
+        "description": "Detection of debugger statement usage",
+        "patterns": ["debugger;"],
+        "severity": "high",
+        "bypassable": true
+      },
+      {
+        "name": "devtools-detection",
+        "description": "Detection of DevTools open/close state",
+        "patterns": ["console.log", "console.clear", "window.outerWidth"],
+        "severity": "high",
+        "bypassable": true
+      },
+      {
+        "name": "timing-checks",
+        "description": "Detection of timing-based debugger detection",
+        "patterns": ["Date.now()", "performance.now()", "new Date()"],
+        "severity": "medium",
+        "bypassable": true
+      },
+      {
+        "name": "infinite-loops",
+        "description": "Detection of infinite loops as anti-debug measure",
+        "patterns": ["while(true)", "for(;;)", "while(1)"],
+        "severity": "critical",
+        "bypassable": true
+      }
+    ],
+    "consoleDetection": [
+      {
+        "name": "console-override",
+        "description": "Detection of console object modification",
+        "patterns": ["console.log", "console.warn", "console.error"],
+        "severity": "medium",
+        "bypassable": true
+      },
+      {
+        "name": "console-clear",
+        "description": "Detection of console.clear as anti-debug",
+        "patterns": ["console.clear()"],
+        "severity": "low",
+        "bypassable": true
+      },
+      {
+        "name": "console-table",
+        "description": "Detection of console.table for detection",
+        "patterns": ["console.table()"],
+        "severity": "medium",
+        "bypassable": true
+      }
+    ],
+    "breakpointDetection": [
+      {
+        "name": "function-breakpoints",
+        "description": "Detection of function-based breakpoints",
+        "severity": "medium",
+        "bypassable": true
+      },
+      {
+        "name": "conditional-breakpoints",
+        "description": "Detection of conditional breakpoint patterns",
+        "severity": "medium",
+        "bypassable": true
+      },
+      {
+        "name": "dom-breakpoints",
+        "description": "Detection of DOM modification breakpoints",
+        "severity": "low",
+        "bypassable": true
+      }
+    ],
+    "stackTraceAnalysis": [
+      {
+        "name": "caller-check",
+        "description": "Detection of function caller inspection",
+        "patterns": ["arguments.callee.caller", "new Error().stack"],
+        "severity": "high",
+        "bypassable": true
+      },
+      {
+        "name": "stack-depth",
+        "description": "Detection of stack depth analysis",
+        "patterns": ["Error", "captureStackTrace"],
+        "severity": "medium",
+        "bypassable": true
+      }
+    ],
+    "environmentDetection": [
+      {
+        "name": "node-detection",
+        "description": "Detection of Node.js environment checks",
+        "patterns": ["process.versions.node", "require"],
+        "severity": "low",
+        "bypassable": true
+      },
+      {
+        "name": "browser-detection",
+        "description": "Detection of browser environment checks",
+        "patterns": ["window", "document", "navigator"],
+        "severity": "low",
+        "bypassable": true
+      },
+      {
+        "name": "headless-detection",
+        "description": "Detection of headless browser checks",
+        "patterns": ["navigator.webdriver", "headless"],
+        "severity": "medium",
+        "bypassable": true
+      }
+    ]
+  },
+  "detection": {
+    "patterns": {
+      "debugger": {
+        "regex": "\\bdebugger\\b",
+        "context": "statement",
+        "severity": "high"
+      },
+      "timingAttack": {
+        "regex": "Date\\.now\\(\\)|performance\\.now\\(\\)|new\\s+Date\\(\\)",
+        "threshold": 100,
+        "severity": "medium"
+      },
+      "infiniteLoop": {
+        "regex": "while\\s*\\(\\s*(true|1)\\s*\\)|for\\s*\\(\\s*;\\s*;\\s*\\)",
+        "severity": "critical"
+      },
+      "devTools": {
+        "regex": "window\\.(outerWidth|outerHeight|innerWidth|innerHeight)",
+        "threshold": 100,
+        "severity": "high"
+      },
+      "consoleDetection": {
+        "regex": "console\\.(log|clear|table|debug|info)",
+        "severity": "medium"
+      },
+      "stackTrace": {
+        "regex": "(arguments\\.callee\\.caller|new\\s+Error\\(\\)\\.stack)",
+        "severity": "high"
+      },
+      "headlessCheck": {
+        "regex": "navigator\\.(webdriver|languages|plugins)",
+        "severity": "medium"
+      }
+    },
+    "heuristics": {
+      "timingThreshold": 100,
+      "maxLoops": 1000,
+      "devToolsSizeDiff": 100,
+      "stackDepthLimit": 100
+    },
+    "validation": {
+      "checkContext": true,
+      "analyzeFlow": true,
+      "detectObfuscation": true
+    }
+  },
+  "bypass": {
+    "techniques": {
+      "debugger": {
+        "method": "remove-statement",
+        "description": "Remove or disable debugger statements"
+      },
+      "timing": {
+        "method": "time-warp",
+        "description": "Override timing functions to return consistent values"
+      },
+      "infiniteLoop": {
+        "method": "loop-break",
+        "description": "Insert break conditions or limits"
+      },
+      "devTools": {
+        "method": "mock-window",
+        "description": "Override window dimension properties"
+      },
+      "console": {
+        "method": "restore-console",
+        "description": "Restore original console methods"
+      },
+      "stackTrace": {
+        "method": "sanitize-stack",
+        "description": "Modify or remove stack trace detection"
+      }
+    },
+    "safety": {
+      "preserveFunctionality": true,
+      "validateAfterBypass": true,
+      "logChanges": true
+    }
+  },
+  "configuration": {
+    "detectOnly": false,
+    "autoBypass": true,
+    "verboseLogging": false,
+    "timeout": 10000,
+    "maxPatterns": 100,
+    "reportFormat": "detailed"
+  },
+  "output": {
+    "includePatterns": true,
+    "includeLocations": true,
+    "includeSeverities": true,
+    "includeBypassed": true,
+    "includeRecommendations": true
+  },
+  "dependencies": {
+    "required": [],
+    "optional": ["@babel/parser", "@babel/traverse"],
+    "version": "Node.js >= 14.0.0"
+  },
+  "entry": "anti-debug.js",
+  "priority": 2,
+  "timeout": 10000,
+  "retries": 3,
+  "examples": [
+    {
+      "input": "debugger; console.log('test');",
+      "detected": ["debugger-statement"],
+      "bypassed": true
+    },
+    {
+      "input": "while(true) { console.log('infinite'); }",
+      "detected": ["infinite-loop"],
+      "bypassed": true
+    },
+    {
+      "input": "if(Date.now() - start > 100) throw new Error();",
+      "detected": ["timing-check"],
+      "bypassed": true
+    }
+  ],
+  "metadata": {
+    "created": "2024-01-01T00:00:00.000Z",
+    "updated": "2024-01-15T00:00:00.000Z",
+    "tags": ["anti-debug", "security", "debugger", "bypass", "obfuscation"],
+    "documentation": "./skills/anti-debug/skills.md"
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "name": "control-flow-skill",
+  "version": "3.0.0",
+  "description": "Advanced control flow deobfuscation and reconstruction skill for JavaScript",
+  "type": "skill",
+  "category": "deobfuscation",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "capabilities": {
+    "flatteningDetection": [
+      {
+        "name": "switch-flattening",
+        "description": "Detection and reconstruction of switch-based control flow flattening",
+        "patterns": ["switch-case-dispatcher", "state-variable"],
+        "severity": "high",
+        "recoverable": true
+      },
+      {
+        "name": "while-flattening",
+        "description": "Detection of while-loop based flattening",
+        "patterns": ["while-switch", "infinite-while"],
+        "severity": "high",
+        "recoverable": true
+      },
+      {
+        "name": "array-dispatch",
+        "description": "Detection of array-based dispatch tables",
+        "patterns": ["array-index-calls", "function-array"],
+        "severity": "medium",
+        "recoverable": true
+      }
+    ],
+    "branchAnalysis": [
+      {
+        "name": "opaque-predicate",
+        "description": "Detection of opaque predicates (always true/false conditions)",
+        "patterns": ["constant-condition", "arithmetic-opaque"],
+        "severity": "medium",
+        "recoverable": true
+      },
+      {
+        "name": "dead-code",
+        "description": "Detection of dead/unreachable code",
+        "patterns": ["unreachable-branch", "return-after-return"],
+        "severity": "low",
+        "recoverable": true
+      },
+      {
+        "name": "branch-simplification",
+        "description": "Simplification of complex branch structures",
+        "patterns": ["nested-if", "chained-else-if"],
+        "severity": "low",
+        "recoverable": true
+      }
+    ],
+    "loopAnalysis": [
+      {
+        "name": "loop-unrolling",
+        "description": "Detection and reversal of loop unrolling",
+        "patterns": ["repeated-pattern", "manual-iteration"],
+        "severity": "medium",
+        "recoverable": true
+      },
+      {
+        "name": "loop-inversion",
+        "description": "Detection of loop inversion obfuscation",
+        "patterns": ["while-to-for", "for-to-while"],
+        "severity": "low",
+        "recoverable": true
+      },
+      {
+        "name": "loop-fusion",
+        "description": "Detection of loop fusion/splitting",
+        "patterns": ["merged-loops", "split-iterations"],
+        "severity": "medium",
+        "recoverable": true
+      }
+    ],
+    "exceptionHandling": [
+      {
+        "name": "try-catch-obfuscation",
+        "description": "Detection of try-catch based obfuscation",
+        "patterns": ["empty-try", "catch-all", "silent-catch"],
+        "severity": "medium",
+        "recoverable": true
+      },
+      {
+        "name": "exception-flow",
+        "description": "Detection of exception-based control flow",
+        "patterns": ["throw-control", "nested-try"],
+        "severity": "high",
+        "recoverable": true
+      }
+    ],
+    "asyncFlow": [
+      {
+        "name": "promise-chain",
+        "description": "Analysis of Promise chain obfuscation",
+        "patterns": [".then-chain", "promise-wrapper"],
+        "severity": "medium",
+        "recoverable": true
+      },
+      {
+        "name": "async-await-transform",
+        "description": "Transformation between async/await and Promise",
+        "patterns": ["async-to-promise", "promise-to-async"],
+        "severity": "low",
+        "recoverable": true
+      }
+    ]
+  },
+  "detection": {
+    "patterns": {
+      "switchFlattening": {
+        "minCases": 5,
+        "stateVariablePattern": "\\w+\\s*=\\s*\\d+",
+        "dispatcherPattern": "switch\\s*\\([^)]+\\)",
+        "severity": "high"
+      },
+      "opaquePredicate": {
+        "constantTrue": "if\\(true\\)|if\\(1\\)|if\\(!false\\)",
+        "constantFalse": "if\\(false\\)|if\\(0\\)|if\\(!true\\)",
+        "arithmeticOpaque": "\\(\\d+\\s*[+\\-*/]\\s*\\d+\\)\\s*[=<>]",
+        "severity": "medium"
+      },
+      "deadCode": {
+        "afterReturn": "return[^;]*;[^}]*}",
+        "afterBreak": "break;[^}]*}",
+        "unreachableIf": "if\\(false\\)\\s*\\{",
+        "severity": "low"
+      },
+      "infiniteLoop": {
+        "whileTrue": "while\\s*\\(\\s*true\\s*\\)",
+        "forEmpty": "for\\s*\\(\\s*;\\s*;\\s*\\)",
+        "noBreak": true,
+        "severity": "critical"
+      }
+    },
+    "heuristics": {
+      "maxNestingLevel": 10,
+      "maxCasesThreshold": 50,
+      "minBlockStatements": 3,
+      "complexityThreshold": 20
+    },
+    "analysis": {
+      "buildCFG": true,
+      "trackDataFlow": true,
+      "detectPatterns": true,
+      "calculateComplexity": true
+    }
+  },
+  "reconstruction": {
+    "techniques": {
+      "switchUnflatten": {
+        "method": "state-analysis",
+        "description": "Reconstruct original control flow from switch-based flattening"
+      },
+      "predicateResolution": {
+        "method": "constant-propagation",
+        "description": "Resolve opaque predicates to constant values"
+      },
+      "deadCodeElimination": {
+        "method": "cfg-pruning",
+        "description": "Remove unreachable code blocks"
+      },
+      "branchSimplification": {
+        "method": "condition-evaluation",
+        "description": "Simplify complex branch conditions"
+      }
+    },
+    "safety": {
+      "preserveSemantics": true,
+      "validateOutput": true,
+      "generateMappings": true
+    }
+  },
+  "configuration": {
+    "autoReconstruct": true,
+    "verboseLogging": false,
+    "timeout": 30000,
+    "maxIterations": 1000,
+    "reportFormat": "detailed"
+  },
+  "output": {
+    "includeCFG": true,
+    "includeComplexity": true,
+    "includePatterns": true,
+    "includeMappings": true,
+    "includeRecommendations": true
+  },
+  "dependencies": {
+    "required": ["@babel/parser", "@babel/traverse", "@babel/generator"],
+    "optional": [],
+    "version": "Node.js >= 14.0.0"
+  },
+  "entry": "control-flow.js",
+  "priority": 3,
+  "timeout": 30000,
+  "retries": 3,
+  "examples": [
+    {
+      "input": "switch-based flattened code",
+      "output": "reconstructed sequential code",
+      "method": "switch-unflatten"
+    },
+    {
+      "input": "if(false) { dead code }",
+      "output": "removed dead code",
+      "method": "dead-code-elimination"
+    }
+  ],
+  "metadata": {
+    "created": "2024-01-01T00:00:00.000Z",
+    "updated": "2024-01-15T00:00:00.000Z",
+    "tags": ["control-flow", "flattening", "deobfuscation", "cfg", "ast"],
+    "documentation": "./skills/control-flow/skills.md"
+  }
+}

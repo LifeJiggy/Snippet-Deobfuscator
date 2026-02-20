@@ -1,0 +1,183 @@
+{
+  "name": "proxy-function-skill",
+  "version": "3.0.0",
+  "description": "Advanced proxy function removal skill for detecting and eliminating wrapper functions in obfuscated JavaScript",
+  "type": "skill",
+  "category": "deobfuscation",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "capabilities": {
+    "proxyPatterns": [
+      {
+        "name": "simple-wrapper",
+        "description": "Function that directly calls another function with same arguments",
+        "confidence": 0.95
+      },
+      {
+        "name": "call-apply-wrapper",
+        "description": "Wrapper using .call() or .apply()",
+        "confidence": 0.9
+      },
+      {
+        "name": "bind-wrapper",
+        "description": "Wrapper created with .bind()",
+        "confidence": 0.85
+      },
+      {
+        "name": "partial-application",
+        "description": "Wrapper with partially applied arguments",
+        "confidence": 0.8
+      },
+      {
+        "name": "property-wrapper",
+        "description": "Wrapper for property access",
+        "confidence": 0.85
+      }
+    ],
+    "detectionMethods": [
+      {
+        "name": "body-analysis",
+        "description": "Analyze function body for single return statement",
+        "confidence": 0.9
+      },
+      {
+        "name": "call-graph",
+        "description": "Build call graph to identify proxy chains",
+        "confidence": 0.85
+      },
+      {
+        "name": "usage-analysis",
+        "description": "Analyze function usage patterns",
+        "confidence": 0.8
+      },
+      {
+        "name": "name-analysis",
+        "description": "Detect obfuscated naming patterns",
+        "confidence": 0.7
+      }
+    ],
+    "eliminationStrategies": [
+      {
+        "name": "direct-inline",
+        "description": "Replace proxy calls with target function calls",
+        "confidence": 0.95
+      },
+      {
+        "name": "reference-replacement",
+        "description": "Replace all proxy references with target",
+        "confidence": 0.9
+      },
+      {
+        "name": "partial-inline",
+        "description": "Inline with fixed argument handling",
+        "confidence": 0.85
+      },
+      {
+        "name": "chain-elimination",
+        "description": "Eliminate entire proxy chain",
+        "confidence": 0.8
+      }
+    ]
+  },
+  "detection": {
+    "patterns": {
+      "simpleProxy": {
+        "description": "Function that returns another function call with same args",
+        "extractNames": true
+      },
+      "callApplyProxy": {
+        "description": "Wrapper using call or apply methods",
+        "extractTarget": true
+      },
+      "propertyAccessor": {
+        "description": "Function that returns a property",
+        "extractProperty": true
+      },
+      "bindProxy": {
+        "description": "Variable assigned with bind",
+        "extractTarget": true
+      }
+    },
+    "heuristics": {
+      "maxBodyStatements": 1,
+      "mustReturn": true,
+      "noSideEffects": true,
+      "sameParameterCount": true,
+      "detectChains": true,
+      "maxChainLength": 10
+    },
+    "validation": {
+      "preserveContext": true,
+      "preserveThis": true,
+      "checkArguments": true,
+      "validateAfterRemoval": true
+    }
+  },
+  "configuration": {
+    "removal": {
+      "removeSimpleProxies": true,
+      "removeCallApplyProxies": true,
+      "removeBindProxies": true,
+      "removePropertyAccessors": true,
+      "maxInliningDepth": 5
+    },
+    "safety": {
+      "preserveSideEffects": true,
+      "checkThisBinding": true,
+      "checkArgumentsObject": true,
+      "validateNoDependencies": true
+    },
+    "performance": {
+      "timeout": 15000,
+      "maxFunctions": 10000,
+      "cacheAnalysis": true
+    },
+    "output": {
+      "includeStatistics": true,
+      "includeRemovedFunctions": true,
+      "includeWarnings": true,
+      "includeChains": true
+    }
+  },
+  "dependencies": {
+    "required": [],
+    "optional": ["acorn", "escodegen"],
+    "version": "Node.js >= 14.0.0"
+  },
+  "entry": "proxy-function.js",
+  "priority": 3,
+  "timeout": 15000,
+  "retries": 2,
+  "examples": [
+    {
+      "input": "function proxy(x) { return target(x); } var result = proxy(5);",
+      "output": "var result = target(5);",
+      "method": "direct-inline",
+      "confidence": 0.95
+    },
+    {
+      "input": "function wrap() { return fn.apply(this, arguments); } wrap(1,2);",
+      "output": "fn(1,2);",
+      "method": "call-apply-wrapper",
+      "confidence": 0.9
+    },
+    {
+      "input": "var bound = fn.bind(ctx); bound();",
+      "output": "fn.call(ctx);",
+      "method": "bind-wrapper",
+      "confidence": 0.85
+    }
+  ],
+  "metadata": {
+    "created": "2024-01-01T00:00:00.000Z",
+    "updated": "2024-01-15T00:00:00.000Z",
+    "tags": [
+      "proxy-function",
+      "wrapper-removal",
+      "deobfuscation",
+      "function-inline",
+      "call-graph"
+    ],
+    "documentation": "./skills/proxy-function/skills.md"
+  }
+}

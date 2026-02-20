@@ -1,0 +1,357 @@
+{
+  "name": "validator-agent",
+  "version": "3.0.0",
+  "description": "Production-grade specialized agent for validating deobfuscated code correctness, integrity, and safety. Performs comprehensive validation including syntax checking, semantic analysis, security vulnerability scanning, code quality assessment, and test suggestion generation for real-world web applications.",
+  "type": "agent",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator"
+  },
+  "bugs": {
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator/issues"
+  },
+  "homepage": "https://github.com/snippet-deobfuscator/snippet-deobfuscator#readme",
+  "keywords": [
+    "validator",
+    "validation",
+    "code-quality",
+    "security",
+    "syntax",
+    "semantic",
+    "deobfuscation",
+    "javascript",
+    "static-analysis",
+    "ast",
+    "security-scan",
+    "vulnerability-detection",
+    "linting",
+    "testing",
+    "react",
+    "vue",
+    "angular",
+    "nodejs",
+    "web-application"
+  ],
+  "capabilities": [
+    "syntax-validation",
+    "semantic-validation",
+    "runtime-safety-check",
+    "dependency-check",
+    "security-scan",
+    "code-quality-check",
+    "test-generation",
+    "error-detection",
+    "xss-detection",
+    "code-injection-detection",
+    "prototype-pollution-detection",
+    "hardcoded-secret-detection",
+    "path-traversal-detection",
+    "command-injection-detection",
+    "async-validation",
+    "bracket-matching",
+    "undefined-variable-detection",
+    "dead-code-detection",
+    "unreachable-code-detection",
+    "type-checking",
+    "naming-convention-validation",
+    "complexity-analysis",
+    "best-practice-enforcement"
+  ],
+  "dependencies": [
+    "@babel/parser",
+    "@babel/traverse",
+    "@babel/generator"
+  ],
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "entry": "index.js",
+  "priority": 7,
+  "timeout": 45000,
+  "retries": 3,
+  "validation": {
+    "syntaxValidation": {
+      "enabled": true,
+      "description": "Validate code syntax and structure",
+      "options": {
+        "checkJavascript": true,
+        "checkTypeScript": true,
+        "checkJSX": true,
+        "checkTSX": true,
+        "errorRecovery": true,
+        "bracketMatching": true,
+        "maxErrors": 100
+      }
+    },
+    "semanticValidation": {
+      "enabled": true,
+      "description": "Analyze code semantics and logic",
+      "options": {
+        "detectUndefinedVariables": true,
+        "detectUnusedVariables": true,
+        "detectTypeMismatch": true,
+        "detectDeadCode": true,
+        "detectUnreachableCode": true,
+        "detectAssignmentInCondition": true,
+        "detectLooseComparison": true
+      }
+    },
+    "securityScan": {
+      "enabled": true,
+      "description": "Scan for security vulnerabilities",
+      "options": {
+        "detectEvalUsage": true,
+        "detectCodeInjection": true,
+        "detectXSS": true,
+        "detectPrototypePollution": true,
+        "detectCommandInjection": true,
+        "detectHardcodedSecrets": true,
+        "detectInsecureRandom": true,
+        "detectPathTraversal": true,
+        "detectCORSIssues": true,
+        "detectCookieAccess": true,
+        "detectLocalStorageUsage": true
+      }
+    },
+    "qualityCheck": {
+      "enabled": true,
+      "description": "Assess code quality and best practices",
+      "options": {
+        "detectLongFunctions": true,
+        "detectDeepNesting": true,
+        "detectMagicNumbers": true,
+        "detectConsoleStatements": true,
+        "detectDebuggerStatements": true,
+        "detectTodoComments": true,
+        "maxFunctionLength": 100,
+        "maxNestingDepth": 5
+      }
+    },
+    "testGeneration": {
+      "enabled": true,
+      "description": "Generate test suggestions",
+      "options": {
+        "generateFunctionTests": true,
+        "generateAsyncTests": true,
+        "generateExportTests": true,
+        "maxSuggestions": 10
+      }
+    }
+  },
+  "configuration": {
+    "checkSyntax": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable syntax validation"
+    },
+    "checkSecurity": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable security scanning"
+    },
+    "checkQuality": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable code quality checks"
+    },
+    "checkSemantics": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable semantic analysis"
+    },
+    "strictMode": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable strict validation mode"
+    },
+    "verboseLogging": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging for debugging"
+    },
+    "timeout": {
+      "type": "number",
+      "default": 45000,
+      "description": "Maximum execution time in milliseconds"
+    },
+    "enableCache": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable result caching"
+    },
+    "maxErrors": {
+      "type": "number",
+      "default": 100,
+      "description": "Maximum errors to collect"
+    },
+    "maxWarnings": {
+      "type": "number",
+      "default": 50,
+      "description": "Maximum warnings to collect"
+    },
+    "failOnCritical": {
+      "type": "boolean",
+      "default": true,
+      "description": "Mark validation as failed on critical issues"
+    },
+    "generateSuggestions": {
+      "type": "boolean",
+      "default": true,
+      "description": "Generate test suggestions"
+    }
+  },
+  "output": {
+    "valid": {
+      "type": "boolean",
+      "description": "Overall validation status"
+    },
+    "errors": {
+      "type": "array",
+      "description": "Syntax and semantic errors"
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Code quality warnings"
+    },
+    "securityIssues": {
+      "type": "array",
+      "description": "Security vulnerabilities found"
+    },
+    "qualityIssues": {
+      "type": "array",
+      "description": "Code quality concerns"
+    },
+    "testSuggestions": {
+      "type": "array",
+      "description": "Generated test suggestions"
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Improvement recommendations"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Validation statistics"
+    },
+    "validatedAt": {
+      "type": "string",
+      "description": "Timestamp of validation"
+    }
+  },
+  "securityPatterns": {
+    "codeInjection": {
+      "patterns": ["eval\\s*\\(", "new\\s+Function\\s*\\("],
+      "severity": "critical",
+      "description": "Potential code injection vulnerability"
+    },
+    "xss": {
+      "patterns": ["\\.innerHTML\\s*=", "document\\.write\\s*\\("],
+      "severity": "high",
+      "description": "Cross-site scripting vulnerability"
+    },
+    "prototypePollution": {
+      "patterns": ["__proto__", "prototype\\s*\\["],
+      "severity": "critical",
+      "description": "Prototype pollution vulnerability"
+    },
+    "commandInjection": {
+      "patterns": ["exec\\s*\\(", "spawn\\s*\\(", "execSync\\s*\\("],
+      "severity": "critical",
+      "description": "Command injection vulnerability"
+    },
+    "hardcodedSecrets": {
+      "patterns": ["password\\s*[:=]", "secret\\s*[:=]", "token\\s*[:=]"],
+      "severity": "critical",
+      "description": "Hardcoded sensitive data"
+    },
+    "insecureRandom": {
+      "patterns": ["Math\\.random\\s*\\(\\s*\\)"],
+      "severity": "medium",
+      "description": "Insecure random number generation"
+    },
+    "pathTraversal": {
+      "patterns": ["\\.\\.\\/"],
+      "severity": "high",
+      "description": "Path traversal vulnerability"
+    },
+    "corsWildcard": {
+      "patterns": ["Access-Control-Allow-Origin\\s*:\\s*\\*"],
+      "severity": "high",
+      "description": "Insecure CORS configuration"
+    }
+  },
+  "qualityMetrics": {
+    "functionLength": {
+      "threshold": 100,
+      "description": "Maximum recommended function length in lines",
+      "severity": "low"
+    },
+    "nestingDepth": {
+      "threshold": 5,
+      "description": "Maximum recommended nesting depth",
+      "severity": "low"
+    },
+    "cyclomaticComplexity": {
+      "threshold": 10,
+      "description": "Maximum recommended cyclomatic complexity",
+      "severity": "medium"
+    },
+    "parameterCount": {
+      "threshold": 8,
+      "description": "Maximum recommended function parameters",
+      "severity": "low"
+    }
+  },
+  "examples": [
+    {
+      "description": "Basic code validation",
+      "code": "const { Validator } = require('./agents/validator');\nconst validator = new Validator();\nconst result = validator.validate(code);\nconsole.log('Valid:', result.valid);\nconsole.log('Errors:', result.errors);"
+    },
+    {
+      "description": "Security-focused validation",
+      "code": "const validator = new Validator({ checkSecurity: true, checkQuality: false });\nconst result = validator.validate(userCode);\nif (result.securityIssues.length > 0) {\n  console.warn('Security issues found!');\n  result.securityIssues.forEach(issue => console.log(issue.message));\n}"
+    },
+    {
+      "description": "Full validation with all checks",
+      "code": "const validator = new Validator({\n  checkSyntax: true,\n  checkSecurity: true,\n  checkQuality: true,\n  checkSemantics: true,\n  strictMode: true\n});\nconst result = validator.validate(code);\nconsole.log('Statistics:', result.statistics);\nconsole.log('Test Suggestions:', result.testSuggestions);"
+    },
+    {
+      "description": "Async validation with events",
+      "code": "const validator = new Validator({ verboseLogging: true });\nvalidator.on('progress', (data) => console.log(data.phase));\nconst result = await validator.validateAsync(code);\nconsole.log('Valid:', result.valid);"
+    },
+    {
+      "description": "Batch validation",
+      "code": "const { validateBatch } = require('./agents/validator');\nconst results = await validateBatch([code1, code2, code3], {\n  batchSize: 10,\n  onProgress: ({ completed, total }) => console.log(completed + '/' + total)\n});"
+    }
+  ],
+  "relatedAgents": [
+    "string-decryptor",
+    "pattern-recognizer",
+    "beautifier",
+    "control-flow-analyzer",
+    "renamer",
+    "orchestrator"
+  ],
+  "category": "validation",
+  "status": "stable",
+  "maintainers": [
+    {
+      "name": "Deobfuscation Team",
+      "email": "team@deobfuscator.dev",
+      "url": "https://deobfuscator.dev"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Lead Developer",
+      "role": "maintainer"
+    }
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/snippet-deobfuscator"
+  }
+}

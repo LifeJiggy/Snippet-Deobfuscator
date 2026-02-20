@@ -1,0 +1,625 @@
+{
+  "name": "framework-detector-agent",
+  "version": "3.0.0",
+  "description": "Production-grade specialized agent for detecting JavaScript frameworks, libraries, and build tools in obfuscated code. Supports React, Vue, Angular, Svelte, Node.js, Next.js, and 50+ libraries with version estimation.",
+  "type": "agent",
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator"
+  },
+  "bugs": {
+    "url": "https://github.com/snippet-deobfuscator/snippet-deobfuscator/issues"
+  },
+  "homepage": "https://github.com/snippet-deobfuscator/snippet-deobfuscator#readme",
+  "keywords": [
+    "framework",
+    "detection",
+    "obfuscation",
+    "deobfuscation",
+    "react",
+    "vue",
+    "angular",
+    "svelte",
+    "nodejs",
+    "javascript",
+    "static-analysis",
+    "ast",
+    "library-detection",
+    "build-tools",
+    "webpack",
+    "vite",
+    "security"
+  ],
+  "capabilities": [
+    "react-detection",
+    "vue-detection",
+    "angular-detection",
+    "svelte-detection",
+    "nodejs-detection",
+    "nextjs-detection",
+    "library-detection",
+    "build-tool-detection",
+    "version-estimation",
+    "security-analysis",
+    "framework-analysis",
+    "library-analysis",
+    "pattern-matching",
+    "confidence-scoring",
+    "obfuscation-resistant"
+  ],
+  "dependencies": [
+    "@babel/parser",
+    "@babel/traverse"
+  ],
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "entry": "index.js",
+  "priority": 3,
+  "timeout": 15000,
+  "retries": 3,
+  "detection": {
+    "react": {
+      "enabled": true,
+      "description": "Detect React and React Native applications",
+      "options": {
+        "detectHooks": true,
+        "detectUseState": true,
+        "detectUseEffect": true,
+        "detectUseCallback": true,
+        "detectUseMemo": true,
+        "detectUseRef": true,
+        "detectUseContext": true,
+        "detectUseReducer": true,
+        "detectCustomHooks": true,
+        "detectClassComponents": true,
+        "detectFunctionalComponents": true,
+        "detectJSX": true,
+        "detectRedux": true,
+        "detectReactRouter": true,
+        "detectNextjs": true,
+        "detectReactNative": true,
+        "detectContextAPI": true,
+        "detectLifecycle": true,
+        "detectPortals": true,
+        "detectSuspense": true
+      }
+    },
+    "vue": {
+      "enabled": true,
+      "description": "Detect Vue.js applications (2.x and 3.x)",
+      "options": {
+        "detectVue2": true,
+        "detectVue3": true,
+        "detectCompositionAPI": true,
+        "detectOptionsAPI": true,
+        "detectReactive": true,
+        "detectComputed": true,
+        "detectWatch": true,
+        "detectLifecycleHooks": true,
+        "detectMethods": true,
+        "detectTemplateRefs": true,
+        "detectProvideInject": true,
+        "detectVueRouter": true,
+        "detectVuex": true,
+        "detectPinia": true,
+        "detectNuxt": true,
+        "detectComponents": true,
+        "detectDirectives": true,
+        "detectFilters": true
+      }
+    },
+    "angular": {
+      "enabled": true,
+      "description": "Detect Angular applications",
+      "options": {
+        "detectDecorators": true,
+        "detectNgOnInit": true,
+        "detectNgOnChanges": true,
+        "detectNgOnDestroy": true,
+        "detectChangeDetection": true,
+        "detectRxJS": true,
+        "detectDependencyInjection": true,
+        "detectPipes": true,
+        "detectServices": true,
+        "detectComponents": true,
+        "detectDirectives": true,
+        "detectModules": true,
+        "detectRoutes": true,
+        "detectHttpClient": true,
+        "detectForms": true,
+        "detectIvy": true,
+        "detectStandalone": true
+      }
+    },
+    "svelte": {
+      "enabled": true,
+      "description": "Detect Svelte applications",
+      "options": {
+        "detectReactiveStatements": true,
+        "detectLifecycleHooks": true,
+        "detectStores": true,
+        "detectActions": true,
+        "detectTransitions": true,
+        "detectBindings": true,
+        "detectEventHandlers": true,
+        "detectProps": true,
+        "detectSlots": true,
+        "detectSvelteKit": true,
+        "detectSvelte3": true,
+        "detectSvelte4": true,
+        "detectSvelte5": true
+      }
+    },
+    "nodejs": {
+      "enabled": true,
+      "description": "Detect Node.js backend frameworks",
+      "options": {
+        "detectExpress": true,
+        "detectKoa": true,
+        "detectFastify": true,
+        "detectNestJS": true,
+        "detectHapi": true,
+        "detectMeteor": true,
+        "detectSails": true,
+        "detectFeathers": true,
+        "detectRoutes": true,
+        "detectMiddleware": true,
+        "detectAsyncHandlers": true,
+        "detectEventEmitters": true,
+        "detectStreamPipes": true,
+        "detectRESTEndpoints": true,
+        "detectWebSocketHandlers": true,
+        "detectGraphQLResolvers": true,
+        "detectDatabaseOperations": true,
+        "detectAuthentication": true,
+        "detectAuthorization": true
+      }
+    },
+    "nextjs": {
+      "enabled": true,
+      "description": "Detect Next.js applications",
+      "options": {
+        "detectGetStaticProps": true,
+        "detectGetServerSideProps": true,
+        "detectGetStaticPaths": true,
+        "detectAPIRoutes": true,
+        "detectAppRouter": true,
+        "detectPagesRouter": true,
+        "detectServerComponents": true,
+        "detectClientComponents": true,
+        "detectDynamicRoutes": true,
+        "detectMiddleware": true,
+        "detectLayouts": true,
+        "detectLoadingUI": true,
+        "detectErrorBoundary": true
+      }
+    },
+    "libraries": {
+      "enabled": true,
+      "description": "Detect third-party libraries and utilities",
+      "libraries": [
+        "jquery",
+        "lodash",
+        "axios",
+        "moment",
+        "dateFns",
+        "underscore",
+        "backbone",
+        "expressValidator",
+        "mongoose",
+        "sequelize",
+        "prisma",
+        "socketio",
+        "ws",
+        "graphql",
+        "redis",
+        "amqp",
+        "nodemailer",
+        "bcrypt",
+        "jsonwebtoken",
+        "passport"
+      ]
+    },
+    "buildTools": {
+      "enabled": true,
+      "description": "Detect build tools and bundlers",
+      "tools": [
+        "webpack",
+        "vite",
+        "rollup",
+        "esbuild",
+        "parcel",
+        "babel",
+        "typescript",
+        "swc",
+        "metro",
+        "snowpack"
+      ]
+    },
+    "versionEstimation": {
+      "enabled": true,
+      "description": "Estimate framework and library versions",
+      "methods": [
+        "pattern-based",
+        "api-versioning",
+        "file-markers"
+      ]
+    },
+    "securityAnalysis": {
+      "enabled": true,
+      "description": "Perform security analysis during detection",
+      "checks": [
+        "auth-patterns",
+        "crypto-usage",
+        "dangerous-apis"
+      ]
+    }
+  },
+  "configuration": {
+    "detectReact": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable React framework detection"
+    },
+    "detectVue": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable Vue.js framework detection"
+    },
+    "detectAngular": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable Angular framework detection"
+    },
+    "detectSvelte": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable Svelte framework detection"
+    },
+    "detectNodejs": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable Node.js backend detection"
+    },
+    "detectNextjs": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable Next.js detection"
+    },
+    "detectLibraries": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable library detection"
+    },
+    "detectBuildTools": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable build tool detection"
+    },
+    "detectSecurity": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable security pattern detection"
+    },
+    "estimateVersions": {
+      "type": "boolean",
+      "default": true,
+      "description": "Estimate framework versions"
+    },
+    "confidenceThreshold": {
+      "type": "number",
+      "default": 0.5,
+      "description": "Minimum confidence score for detection (0-1)"
+    },
+    "verboseLogging": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging for debugging"
+    },
+    "timeout": {
+      "type": "number",
+      "default": 15000,
+      "description": "Maximum execution time in milliseconds"
+    }
+  },
+  "output": {
+    "frameworks": {
+      "type": "array",
+      "description": "Array of detected frameworks with confidence scores"
+    },
+    "libraries": {
+      "type": "array",
+      "description": "Array of detected libraries with match counts"
+    },
+    "buildTools": {
+      "type": "array",
+      "description": "Array of detected build tools"
+    },
+    "security": {
+      "type": "array",
+      "description": "Security patterns found in code"
+    },
+    "estimatedVersions": {
+      "type": "object",
+      "description": "Estimated versions for detected frameworks"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Detection statistics"
+    },
+    "confidence": {
+      "type": "object",
+      "description": "Confidence scores for each category"
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Warning messages"
+    },
+    "errors": {
+      "type": "array",
+      "description": "Error messages if detection failed"
+    }
+  },
+  "frameworkPatterns": {
+    "react": {
+      "description": "React is a JavaScript library for building user interfaces",
+      "indicators": [
+        "useState, useEffect, useCallback, useMemo hooks",
+        "React.createElement, JSX transformation",
+        "class extends Component",
+        "React.Context, useContext",
+        "React Router patterns",
+        "Redux createStore, combineReducers"
+      ],
+      "confidenceWeights": {
+        "hooks": 2,
+        "reactAPIs": 3,
+        "jsx": 3,
+        "component": 2,
+        "state": 2,
+        "context": 2,
+        "lifecycle": 1,
+        "router": 1,
+        "redux": 2,
+        "nextjs": 2,
+        "reactNative": 2
+      }
+    },
+    "vue": {
+      "description": "Vue.js is a progressive JavaScript framework",
+      "indicators": [
+        "new Vue() for Vue 2",
+        "createApp() for Vue 3",
+        "ref(), reactive(), computed() composition API",
+        "v-if, v-for, v-bind template directives",
+        "Vue Router, Vuex, Pinia patterns"
+      ],
+      "confidenceWeights": {
+        "vue2": 3,
+        "vue3": 3,
+        "composition": 3,
+        "options": 2,
+        "template": 3,
+        "router": 1,
+        "vuex": 2,
+        "pinia": 2,
+        "nuxt": 2
+      }
+    },
+    "angular": {
+      "description": "Angular is a platform for building mobile and desktop web applications",
+      "indicators": [
+        "@Component, @Injectable decorators",
+        "ngOnInit, ngOnChanges lifecycle",
+        "RxJS Observable patterns",
+        "Dependency injection in constructors",
+        "HttpClient usage"
+      ],
+      "confidenceWeights": {
+        "decorators": 3,
+        "lifecycle": 2,
+        "forms": 1,
+        "http": 1,
+        "router": 1,
+        "rxjs": 2,
+        "di": 2,
+        "services": 1,
+        "ivy": 3
+      }
+    },
+    "svelte": {
+      "description": "Svelte is a radical new approach to building user interfaces",
+      "indicators": [
+        "$: reactive statements",
+        "onMount, onDestroy lifecycle",
+        "writable, readable stores",
+        "transition: and animate: directives",
+        "bind:this, bind:prop bindings"
+      ],
+      "confidenceWeights": {
+        "reactive": 3,
+        "lifecycle": 2,
+        "stores": 2,
+        "transitions": 2,
+        "actions": 1,
+        "bindings": 2,
+        "events": 1,
+        "slots": 1,
+        "svelteKit": 2
+      }
+    },
+    "nodejs": {
+      "description": "Node.js backend frameworks and patterns",
+      "indicators": [
+        "express(), app.get/post/put/delete",
+        "koa app.use(), ctx patterns",
+        "fastify fastify.listen()",
+        "@Controller, @Get NestJS decorators",
+        "Socket.io io.on(), socket.emit()"
+      ],
+      "confidenceWeights": {
+        "express": 3,
+        "koa": 3,
+        "fastify": 3,
+        "nestjs": 3,
+        "hapi": 2,
+        "meteor": 2,
+        "sails": 2,
+        "feathers": 2
+      }
+    }
+  },
+  "libraryPatterns": {
+    "jquery": {
+      "name": "jQuery",
+      "category": "DOM",
+      "patterns": ["$.ajax", "$.get", "$.post", "$(selector)"]
+    },
+    "lodash": {
+      "name": "Lodash",
+      "category": "Utility",
+      "patterns": ["_..", "_.debounce", "_.throttle", "_.cloneDeep"]
+    },
+    "axios": {
+      "name": "Axios",
+      "category": "HTTP",
+      "patterns": ["axios.get", "axios.post", "axios.create"]
+    },
+    "moment": {
+      "name": "Moment.js",
+      "category": "Date",
+      "patterns": ["moment()", "moment.format", "moment.add"]
+    },
+    "socketio": {
+      "name": "Socket.io",
+      "category": "WebSocket",
+      "patterns": ["io.on", "socket.emit", "new Server"]
+    },
+    "mongoose": {
+      "name": "Mongoose",
+      "category": "Database",
+      "patterns": ["mongoose.model", "new Schema", "mongoose.connect"]
+    },
+    "graphql": {
+      "name": "GraphQL",
+      "category": "API",
+      "patterns": ["gql`", "type Query", "type Mutation", "buildSchema"]
+    },
+    "passport": {
+      "name": "Passport.js",
+      "category": "Auth",
+      "patterns": ["passport.use", "passport.serializeUser", "LocalStrategy"]
+    }
+  },
+  "buildToolPatterns": {
+    "webpack": {
+      "name": "Webpack",
+      "indicators": ["__webpack_require__", "__webpack_modules__", "webpackJsonp"]
+    },
+    "vite": {
+      "name": "Vite",
+      "indicators": ["__vite_ssr_import__", "import.meta.vite", "VITE_"]
+    },
+    "rollup": {
+      "name": "Rollup",
+      "indicators": ["_rollupPluginBabelHelpers", "__esModule", "rollup."]
+    },
+    "parcel": {
+      "name": "Parcel",
+      "indicators": ["parcelRequire", "HMRR"]
+    },
+    "typescript": {
+      "name": "TypeScript",
+      "indicators": [": string", "interface ", "type ", "enum ", "as "]
+    }
+  },
+  "securityPatterns": {
+    "auth": {
+      "description": "Authentication-related patterns",
+      "patterns": ["password:", "api_key:", "secret:", "token:", "bearer", "jwt"]
+    },
+    "crypto": {
+      "description": "Cryptography-related patterns",
+      "patterns": ["crypto.", "subtle.", "encrypt", "decrypt", "sign"]
+    },
+    "dangerous": {
+      "description": "Potentially dangerous APIs",
+      "patterns": ["eval(", "new Function(", "document.write", "innerHTML="]
+    }
+  },
+  "realWorldScenarios": {
+    "reactApps": {
+      "description": "Modern React single-page applications",
+      "frameworks": ["react", "react-router", "redux", "nextjs"],
+      "commonPatterns": ["Component-based architecture", "Hooks state management", "API integration"]
+    },
+    "vueApps": {
+      "description": "Vue.js applications",
+      "frameworks": ["vue", "vue-router", "vuex", "pinia"],
+      "commonPatterns": ["Reactive data binding", "Component system", "Composition API"]
+    },
+    "angularApps": {
+      "description": "Enterprise Angular applications",
+      "frameworks": ["angular", "rxjs"],
+      "commonPatterns": ["Dependency injection", "TypeScript strict typing", "Module system"]
+    },
+    "nodeBackend": {
+      "description": "Node.js backend APIs",
+      "frameworks": ["express", "koa", "fastify", "nestjs"],
+      "commonPatterns": ["RESTful endpoints", "Middleware architecture", "Database integration"]
+    },
+    "minifiedCode": {
+      "description": "Analysis of minified and obfuscated bundles",
+      "techniques": ["Pattern matching", "AST analysis", "String extraction", "Signature detection"]
+    }
+  },
+  "examples": [
+    {
+      "description": "Basic framework detection",
+      "code": "const { FrameworkDetector } = require('./agents/framework-detector');\nconst agent = new FrameworkDetector();\nconst result = agent.analyze(code);\nconsole.log(result.frameworks);\nconsole.log(result.libraries);"
+    },
+    {
+      "description": "Detect with version estimation",
+      "code": "const agent = new FrameworkDetector({ estimateVersions: true });\nconst result = agent.analyze(reactCode);\nif (result.frameworks.length > 0) {\n  console.log('Framework:', result.frameworks[0].name);\n  console.log('Version:', result.estimatedVersions.react);\n  console.log('Confidence:', result.confidence.framework);\n}"
+    },
+    {
+      "description": "Full detection with security analysis",
+      "code": "const agent = new FrameworkDetector({\n  detectLibraries: true,\n  detectBuildTools: true,\n  detectSecurity: true,\n  confidenceThreshold: 0.7\n});\nconst result = agent.analyze(code);\nconsole.log('Frameworks:', result.frameworks);\nconsole.log('Libraries:', result.libraries);\nconsole.log('Build Tools:', result.buildTools);\nconsole.log('Security:', result.security);"
+    },
+    {
+      "description": "React-specific detection",
+      "code": "const agent = new FrameworkDetector({\n  detectReact: true,\n  detectNextjs: true,\n  detectRedux: true\n});\nconst result = agent.analyze(code);\nconst react = result.frameworks.find(f => f.framework === 'react');\nif (react) {\n  console.log('React detected with confidence:', react.confidence);\n  console.log('Matched patterns:', react.matchedPatterns);\n}"
+    }
+  ],
+  "relatedAgents": [
+    "string-decryptor",
+    "control-flow-analyzer",
+    "pattern-recognizer",
+    "renamer",
+    "validator",
+    "orchestrator"
+  ],
+  "category": "analysis",
+  "status": "stable",
+  "maintainers": [
+    {
+      "name": "Deobfuscation Team",
+      "email": "team@deobfuscator.dev",
+      "url": "https://deobfuscator.dev"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Lead Developer",
+      "role": "maintainer"
+    }
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/snippet-deobfuscator"
+  }
+}
