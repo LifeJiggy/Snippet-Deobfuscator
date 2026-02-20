@@ -1,212 +1,224 @@
-# JavaScript Snippet Deobfuscator
+# Snippet Deobfuscator
 
-A production-grade JavaScript deobfuscation tool that transforms obfuscated, minified, and packed JavaScript code into human-readable, well-structured source code. Built with 20 years of distributed systems and type-safe engineering expertise.
+<p align="center">
+  <img src="https://img.shields.io/npm/v/snippet-deobfuscator" alt="npm version">
+  <img src="https://img.shields.io/npm/dm/snippet-deobfuscator" alt="npm downloads">
+  <img src="https://img.shields.io/github/license/LifeJiggy/Snippet-Deobfuscator" alt="license">
+  <img src="https://img.shields.io/github/stars/LifeJiggy/Snippet-Deobfuscator" alt="stars">
+</p>
+
+> Deobfuscate JavaScript snippets like a human expert - An AI-powered JavaScript deobfuscation toolkit
 
 ## Features
 
-### Core Deobfuscation Capabilities
-
-- **String Decryption**: Decrypts base64, hex, ROT13, XOR-encoded, and custom obfuscated strings
-- **Control Flow Analysis**: Analyzes and reconstructs obfuscated control flow patterns
-- **Pattern Recognition**: Detects and handles 50+ obfuscation patterns including:
-  - Array access obfuscation (`arr["key"]["subkey"]`)
-  - Arithmetic obfuscation (`(1+2)*(3+4)`)
-  - Character code obfuscation (`String.fromCharCode`)
-  - Encoded eval statements
-  - Split string patterns
-- **Framework Detection**: Automatically detects and handles:
-  - React (including Hooks, Context, Redux)
-  - Angular (with RxJS patterns)
-  - Vue.js (2 & 3, Composition API)
-  - Svelte
-  - Next.js, Gatsby, Nuxt.js
-  - Express/Koa backend patterns
-
-### Advanced Features
-
-- **Webpack Bundle Analysis**: Decodes numeric module IDs, chunk names
-- **React-Specific Renaming**: Context-aware variable naming for React code
-- **Node.js Module Recognition**: Identifies 100+ Node.js built-in modules
-- **Unicode Fixup**: Repairs corrupted Unicode characters from obfuscation
-- **Beautification**: Formats minified code with proper indentation
-- **Functionality Detection**: Identifies 30+ code functionality patterns:
-  - Event handlers, API calls, authentication
-  - Storage operations, analytics tracking
-  - State management, DOM manipulation
-
-### AI-Powered Enhancements
-
-- **AI Agent System**: Autonomous agents for complex deobfuscation tasks
-- **Smart Rename Suggestions**: Context-aware variable/function naming
-- **Pattern Learning**: Learns from processed code for better results
-
-### User Interfaces
-
-- **CLI**: Full-featured command-line interface with multiple modes
-- **TUI**: Interactive terminal user interface
-- **Programmatic API**: Use as a Node.js module
-- **Pipe Support**: Process code via stdin/stdout
+- **String Decryption**: Decode base64, hex, ROT13, XOR, Unicode, and more
+- **Control Flow Analysis**: Analyze and reconstruct control flow structures
+- **Pattern Recognition**: Detect 50+ obfuscation patterns
+- **Variable Renaming**: Semantic renaming with context awareness
+- **Code Beautification**: Format and prettify deobfuscated code
+- **Framework Detection**: Identify React, Vue, Angular, Svelte, Node.js
+- **Security Analysis**: Detect vulnerabilities and suspicious patterns
 
 ## Installation
 
+### Global Installation (CLI)
+
 ```bash
-npm install
+npm install -g snippet-deobfuscator
 ```
 
-## Usage
-
-### CLI
+### Local Installation (Library)
 
 ```bash
-# Process a file
-node index.js input.js output.js
+npm install snippet-deobfuscator
+```
 
-# Process via pipe
-echo "obfuscated code" | node index.js -
+## Quick Start
 
-# Use the deobfuscate command
-node index.js snippet.js
+### CLI Usage
+
+```bash
+# Deobfuscate from file
+deobfuscate input.js -o output.js
+
+# Deobfuscate from stdin
+echo "obfuscated code" | deobfuscate
+
+# Use specific agents
+deobfuscate input.js --agents=string-decryptor,pattern-recognizer
 ```
 
 ### Programmatic Usage
 
 ```javascript
-const { deobfuscateSnippet } = require("./index.js");
+const deobfuscator = require('snippet-deobfuscator');
 
-const result = deobfuscateSnippet(`
-  function _0x12ab(x) {
-    return String.fromCharCode(x);
-  }
-`);
-
+// Basic deobfuscation
+const result = deobfuscator.deobfuscate(obfuscatedCode);
 console.log(result.code);
-console.log(result.detectedFrameworks);
-console.log(result.allRenames);
+
+// Using specific agents
+const result = deobfuscator.analyze(obfuscatedCode, {
+  agents: ['string-decryptor', 'control-flow-analyzer']
+});
 ```
 
-### TUI Mode
+## Agents
 
-```bash
-node tui.js
-```
+The deobfuscator uses a modular agent system:
 
-### CLI with Options
-
-```bash
-node cli.js --input input.js --output output.js --format --verbose
-```
-
-## API Reference
-
-### deobfuscateSnippet(code)
-
-**Parameters:**
-
-- `code` (string): The obfuscated JavaScript code to deobfuscate
-
-**Returns:**
-
-```javascript
-{
-  code: string,                    // Deobfuscated code
-  patterns: Array,                // Detected obfuscation patterns
-  functionality: Array,           // Detected code functionality
-  branches: Array,                // Control flow branches
-  flow: Array,                    // Reconstructed control flow
-  detectedFrameworks: Array,      // Detected frameworks
-  allRenames: Array,             // All name changes applied
-  nameSuggestions: Array,         // Name suggestions mapping
-  error?: string,                 // Error message if failed
-  stack?: string                  // Stack trace if failed
-}
-```
+| Agent | Description |
+|-------|-------------|
+| [String Decryptor](agents/string-decryptor/README.md) | Decodes obfuscated strings |
+| [Pattern Recognizer](agents/pattern-recognizer/README.md) | Detects obfuscation patterns |
+| [Control Flow Analyzer](agents/control-flow-analyzer/README.md) | Analyzes control flow |
+| [Renamer](agents/renamer/README.md) | Semantic variable naming |
+| [Beautifier](agents/beautifier/README.md) | Code formatting |
+| [Framework Detector](agents/framework-detector/README.md) | Identifies frameworks |
+| [Validator](agents/validator/README.md) | Validates deobfuscated code |
+| [Orchestrator](agents/orchestrator/README.md) | Coordinates all agents |
 
 ## Configuration
 
-### Environment Variables
+### CLI Options
 
-- `LINE_LIMIT`: Maximum lines to process (default: 700,000)
-- `LARGE_FILE_THRESHOLD`: Size in bytes to skip heavy transformations (default: 2,000,000)
+```bash
+deobfuscate [input] [options]
 
-## Supported Obfuscation Types
+Options:
+  -o, --output <file>     Output file
+  -a, --agents <agents>   Comma-separated agent list
+  -c, --config <file>    Config file
+  -v, --verbose           Verbose output
+  --no-color              Disable colors
+  -h, --help              Show help
+```
 
-| Type                    | Status | Description                   |
-| ----------------------- | ------ | ----------------------------- |
-| Base64                  | ✅     | Standard base64 encoding      |
-| Hex                     | ✅     | Hexadecimal encoding          |
-| ROT13                   | ✅     | Caesar cipher rotation        |
-| XOR                     | ✅     | XOR encoding with common keys |
-| Unicode                 | ✅     | Unicode escape sequences      |
-| Array Access            | ✅     | Nested array property access  |
-| Control Flow Flattening | ✅     | Switch-based flattening       |
-| Webpack Bundles         | ✅     | Module ID mapping             |
-| React Hooks             | ✅     | useState/useEffect detection  |
+### Programmatic Options
+
+```javascript
+const result = deobfuscator.deobfuscate(code, {
+  // Agent selection
+  agents: ['string-decryptor', 'pattern-recognizer', 'renamer'],
+  
+  // Analysis options
+  maxDepth: 5,
+  cacheEnabled: true,
+  
+  // Output options
+  verbose: false,
+  generateMap: false
+});
+```
 
 ## Architecture
 
 ```
 snippet-deobfuscator/
-├── index.js              # Main entry point
-├── cli.js               # CLI interface
-├── tui.js               # TUI interface
-├── patterns.js          # Pattern detection & framework analysis
-├── detector.js          # Functionality detection
-├── renamer.js           # Variable/function renaming
-├── post_processing.js   # Post-processing fixes
-├── module_analyzer.js   # Webpack module analysis
-├── agents.md            # Agent system documentation
-├── skills.md            # Skills system documentation
-├── tools.md            # Tools system documentation
-├── agents/              # AI agent system (8 agents)
-│   ├── index.js
-│   ├── string-decryptor/
-│   ├── control-flow-analyzer/
-│   ├── framework-detector/
-│   ├── pattern-recognizer/
-│   ├── renamer/
-│   ├── beautifier/
-│   ├── validator/
-│   └── orchestrator/
-├── skills/              # Deobfuscation skills
-│   ├── index.js
-│   └── string-decryption/
-└── tools/              # Utility tools
-    ├── index.js
-    ├── config.js
-    ├── logger.js
-    ├── cache.js
-    ├── parser.js
-    ├── metrics.js
-    └── validators.js
+├── agents/                 # Agent implementations
+│   ├── string-decryptor/  # String decryption
+│   ├── pattern-recognizer/ # Pattern detection
+│   ├── control-flow-analyzer/ # Control flow
+│   ├── renamer/           # Variable renaming
+│   ├── beautifier/        # Code formatting
+│   ├── framework-detector/# Framework detection
+│   ├── validator/         # Code validation
+│   └── orchestrator/      # Agent coordination
+├── skills/                # Specialized skills
+├── tools/                 # Utility tools
+├── rules/                 # Deobfuscation rules
+├── cli.js                 # CLI entry point
+└── index.js               # Library entry point
+```
+
+## Examples
+
+### Deobfuscate Minified Code
+
+```javascript
+const { deobfuscate } = require('snippet-deobfuscator');
+
+const minified = `function a(b){return b.map(c=>c*2);}`;
+const result = deobfuscate(minified);
+
+console.log(result.code);
+// Output: function a(b) { return b.map(function(c) { return c * 2; }); }
+```
+
+### Analyze Obfuscated Code
+
+```javascript
+const { analyze } = require('snippet-deobfuscator');
+
+const code = `eval(atob('YWxlcnQoJ2hlbGxvJyk='))`;
+const analysis = analyze(code);
+
+console.log(analysis.patterns);
+// Output: [{ type: 'eval', severity: 'critical' }, { type: 'base64', severity: 'high' }]
+```
+
+### Custom Agent Pipeline
+
+```javascript
+const { createPipeline } = require('snippet-deobfuscator');
+
+const pipeline = createPipeline([
+  'string-decryptor',
+  'pattern-recognizer',
+  'control-flow-analyzer',
+  'renamer',
+  'beautifier'
+]);
+
+const result = pipeline(obfuscatedCode);
+```
+
+## Development
+
+### Setup
+
+```bash
+git clone https://github.com/LifeJiggy/Snippet-Deobfuscator.git
+cd Snippet-Deobfuscator
+npm install
+```
+
+### Testing
+
+```bash
+npm test
+```
+
+### Build
+
+```bash
+# Build CLI
+npm run build
 ```
 
 ## Documentation
 
-- [agents.md](agents.md) - AI Agent System (8 specialized agents)
-- [skills.md](skills.md) - Specialized deobfuscation skills
-- [tools.md](tools.md) - Configuration, logging, caching utilities
-
-## Contributing
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+- [CLI Usage](usage.md)
+- [Programmatic API](programmatic-usage.md)
+- [Agent Documentation](agents/)
+- [Tools](tools/)
+- [Skills](skills/)
 
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE) for details
 
-## Credits
+## Contributing
 
-Built with:
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md).
 
-- Babel (Parser, Traverse, Generator)
-- Prettier (Code formatting)
+## Support
 
-## Roadmap
+- [Report Issues](https://github.com/LifeJiggy/Snippet-Deobfuscator/issues)
+- [Discussions](https://github.com/LifeJiggy/Snippet-Deobfuscator/discussions)
 
-- [ ] Add more obfuscation detection patterns
-- [ ] Implement AI-powered pattern learning
-- [ ] Add GUI interface
-- [ ] Support for TypeScript deobfuscation
-- [ ] Add plugin system for custom obfuscators
+## Related
+
+- [JavaScript Deobfuscator](https://github.com/LifeJiggy) - Related projects
+- [ Babel](https://babel.dev/) - AST manipulation
+- [Prettier](https://prettier.io/) - Code formatting

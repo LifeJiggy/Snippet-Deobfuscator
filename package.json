@@ -1,11 +1,43 @@
 {
   "name": "snippet-deobfuscator",
   "version": "3.0.0",
-  "description": "Deobfuscate JavaScript snippets like a human expert",
+  "description": "Deobfuscate JavaScript snippets like a human expert - An AI-powered JavaScript deobfuscation toolkit",
   "main": "index.js",
   "bin": {
-    "deobfuscate": "./index.js"
+    "deobfuscate": "./cli.js"
   },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "scripts": {
+    "test": "node test.js",
+    "start": "node cli.js",
+    "deobfuscate": "node cli.js"
+  },
+  "keywords": [
+    "deobfuscator",
+    "javascript",
+    "obfuscation",
+    "obfuscated",
+    "malware",
+    "security",
+    "analysis",
+    "reverse-engineering",
+    "deobfuscation",
+    "minified",
+    "uglify",
+    "webpack"
+  ],
+  "author": "Deobfuscation Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LifeJiggy/Snippet-Deobfuscator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LifeJiggy/Snippet-Deobfuscator/issues"
+  },
+  "homepage": "https://github.com/LifeJiggy/Snippet-Deobfuscator#readme",
   "dependencies": {
     "@babel/generator": "^7.28.0",
     "@babel/parser": "^7.28.0",

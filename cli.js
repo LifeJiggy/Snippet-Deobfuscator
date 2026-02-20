@@ -50,7 +50,7 @@ class CLI {
     while (i < args.length) {
       const arg = args[i];
 
-      if (arg === "--" || !arg.startsWith("-")) {
+      if (arg === "--" || arg === "-" || !arg.startsWith("-")) {
         parsed.positional.push(arg);
         i++;
         continue;
