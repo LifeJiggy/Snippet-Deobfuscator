@@ -1,12 +1,12 @@
 /**
  * Framework Detector Agent - Module Loader
- * 
+ *
  * Production-grade specialized agent for detecting JavaScript frameworks,
  * libraries, and build tools in obfuscated code.
- * 
+ *
  * This module provides comprehensive framework detection capabilities with support for
  * synchronous and asynchronous operations, progress tracking, caching, and more.
- * 
+ *
  * Features:
  * - Multi-framework detection (React, Vue, Angular, Svelte, Node.js, etc.)
  * - Library detection (50+ libraries)
@@ -15,28 +15,28 @@
  * - Security pattern analysis
  * - Confidence scoring
  * - Obfuscation-resistant detection
- * 
+ *
  * Usage:
  *   // Basic usage
  *   const { FrameworkDetector } = require('./agents/framework-detector');
  *   const agent = new FrameworkDetector();
  *   const result = agent.detect(code);
- * 
+ *
  *   // Async with events
  *   const { createFrameworkDetector } = require('./agents/framework-detector');
  *   const detector = createFrameworkDetector({ verboseLogging: true });
  *   detector.on('progress', (progress) => console.log(progress));
  *   const result = await detector.detectAsync(code);
- * 
+ *
  *   // Batch detection
  *   const { detectBatch } = require('./agents/framework-detector');
  *   const results = await detectBatch(codeArray);
- * 
+ *
  * For the core implementation, see framework-detector-agent.js
  */
 
-const FrameworkDetectorAgent = require('./framework-detector-agent');
-const { EventEmitter } = require('events');
+const FrameworkDetectorAgent = require("./framework-detector-agent");
+const { EventEmitter } = require("events");
 
 /**
  * Configuration defaults
@@ -57,7 +57,7 @@ const DEFAULT_OPTIONS = {
   timeout: 15000,
   enableCache: true,
   cacheTTL: 300000,
-  parallel: false
+  parallel: false,
 };
 
 /**
@@ -73,10 +73,10 @@ class DetectionCache {
    * Generate cache key from code and options
    */
   generateKey(code, options) {
-    const hash = require('crypto')
-      .createHash('md5')
+    const hash = require("crypto")
+      .createHash("md5")
       .update(code.substring(0, 2000) + JSON.stringify(options))
-      .digest('hex');
+      .digest("hex");
     return hash;
   }
 
@@ -86,12 +86,12 @@ class DetectionCache {
   get(key) {
     const entry = this.cache.get(key);
     if (!entry) return null;
-    
+
     if (Date.now() - entry.timestamp > this.ttl) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return entry.result;
   }
 
@@ -101,7 +101,7 @@ class DetectionCache {
   set(key, result) {
     this.cache.set(key, {
       result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -118,7 +118,7 @@ class DetectionCache {
   getStats() {
     return {
       size: this.cache.size,
-      entries: Array.from(this.cache.keys())
+      entries: Array.from(this.cache.keys()),
     };
   }
 }
@@ -131,7 +131,9 @@ class FrameworkDetector extends EventEmitter {
     super();
     this.options = { ...DEFAULT_OPTIONS, ...options };
     this.agent = new FrameworkDetectorAgent(this.options);
-    this.cache = this.options.enableCache ? new DetectionCache(this.options.cacheTTL) : null;
+    this.cache = this.options.enableCache
+      ? new DetectionCache(this.options.cacheTTL)
+      : null;
     this.detectionCount = 0;
     this.totalDetectionTime = 0;
   }
@@ -144,39 +146,39 @@ class FrameworkDetector extends EventEmitter {
    */
   detect(code, context = {}) {
     const startTime = Date.now();
-    
+
     // Validate input
     this.validateInput(code);
-    
+
     // Check cache
     if (this.cache) {
       const cacheKey = this.cache.generateKey(code, this.options);
       const cached = this.cache.get(cacheKey);
       if (cached) {
-        this.emit('cacheHit', { key: cacheKey });
+        this.emit("cacheHit", { key: cacheKey });
         return { ...cached, fromCache: true };
       }
     }
 
-    this.emit('detectionStart', { context });
+    this.emit("detectionStart", { context });
 
     try {
       const result = this.agent.analyze(code, context);
-      
+
       // Update statistics
       this.detectionCount++;
       this.totalDetectionTime += Date.now() - startTime;
-      
+
       // Cache result
       if (this.cache && result.frameworks?.length > 0) {
         const cacheKey = this.cache.generateKey(code, this.options);
         this.cache.set(cacheKey, result);
       }
 
-      this.emit('detectionComplete', { 
+      this.emit("detectionComplete", {
         detectionTime: result.analysisTime || Date.now() - startTime,
         frameworksFound: result.frameworks?.length || 0,
-        librariesFound: result.libraries?.length || 0
+        librariesFound: result.libraries?.length || 0,
       });
 
       return result;
@@ -189,15 +191,17 @@ class FrameworkDetector extends EventEmitter {
         libraries: [],
         buildTools: [],
         security: [],
-        errors: [{
-          type: 'detection-error',
-          message: error.message,
-          stack: error.stack
-        }],
-        analysisTime: Date.now() - startTime
+        errors: [
+          {
+            type: "detection-error",
+            message: error.message,
+            stack: error.stack,
+          },
+        ],
+        analysisTime: Date.now() - startTime,
       };
-      
-      this.emit('detectionError', { error: error.message });
+
+      this.emit("detectionError", { error: error.message });
       return errorResult;
     }
   }
@@ -232,33 +236,33 @@ class FrameworkDetector extends EventEmitter {
    */
   async detectWithProgress(code) {
     const phases = [
-      { name: 'parsing', weight: 0.1 },
-      { name: 'frameworkDetection', weight: 0.3 },
-      { name: 'libraryDetection', weight: 0.25 },
-      { name: 'buildToolDetection', weight: 0.15 },
-      { name: 'securityAnalysis', weight: 0.1 },
-      { name: 'versionEstimation', weight: 0.1 }
+      { name: "parsing", weight: 0.1 },
+      { name: "frameworkDetection", weight: 0.3 },
+      { name: "libraryDetection", weight: 0.25 },
+      { name: "buildToolDetection", weight: 0.15 },
+      { name: "securityAnalysis", weight: 0.1 },
+      { name: "versionEstimation", weight: 0.1 },
     ];
 
     let cumulativeWeight = 0;
-    
+
     for (const phase of phases) {
-      this.emit('progress', {
+      this.emit("progress", {
         phase: phase.name,
         progress: cumulativeWeight,
-        message: `Running ${phase.name}...`
+        message: `Running ${phase.name}...`,
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 10));
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
       cumulativeWeight += phase.weight;
     }
 
     const result = this.detect(code);
-    
-    this.emit('progress', {
-      phase: 'complete',
+
+    this.emit("progress", {
+      phase: "complete",
       progress: 1,
-      message: 'Detection complete'
+      message: "Detection complete",
     });
 
     return result;
@@ -268,19 +272,20 @@ class FrameworkDetector extends EventEmitter {
    * Validate input code
    */
   validateInput(code) {
-    if (typeof code !== 'string') {
-      throw new Error('Code must be a string');
-    }
-    
-    if (!code.trim()) {
-      throw new Error('Code cannot be empty');
-    }
-    
-    if (code.length > 10000000) { // 10MB limit
-      throw new Error('Code exceeds maximum length of 10MB');
+    if (typeof code !== "string") {
+      throw new Error("Code must be a string");
     }
 
-    this.emit('inputValidated', { length: code.length });
+    if (!code.trim()) {
+      throw new Error("Code cannot be empty");
+    }
+
+    if (code.length > 10000000) {
+      // 10MB limit
+      throw new Error("Code exceeds maximum length of 10MB");
+    }
+
+    this.emit("inputValidated", { length: code.length });
   }
 
   /**
@@ -291,17 +296,17 @@ class FrameworkDetector extends EventEmitter {
    */
   detectFramework(code, framework) {
     const options = {
-      detectReact: framework === 'react',
-      detectVue: framework === 'vue',
-      detectAngular: framework === 'angular',
-      detectSvelte: framework === 'svelte',
-      detectNodejs: framework === 'nodejs',
-      detectNextjs: framework === 'nextjs',
+      detectReact: framework === "react",
+      detectVue: framework === "vue",
+      detectAngular: framework === "angular",
+      detectSvelte: framework === "svelte",
+      detectNodejs: framework === "nodejs",
+      detectNextjs: framework === "nextjs",
       detectLibraries: false,
       detectBuildTools: false,
-      detectSecurity: false
+      detectSecurity: false,
     };
-    
+
     const detector = new FrameworkDetector({ ...this.options, ...options });
     return detector.detect(code);
   }
@@ -312,12 +317,12 @@ class FrameworkDetector extends EventEmitter {
    */
   getSupportedFrameworks() {
     return [
-      { name: 'react', description: 'React and React Native' },
-      { name: 'vue', description: 'Vue.js 2.x and 3.x' },
-      { name: 'angular', description: 'Angular' },
-      { name: 'svelte', description: 'Svelte' },
-      { name: 'nodejs', description: 'Node.js backend frameworks' },
-      { name: 'nextjs', description: 'Next.js' }
+      { name: "react", description: "React and React Native" },
+      { name: "vue", description: "Vue.js 2.x and 3.x" },
+      { name: "angular", description: "Angular" },
+      { name: "svelte", description: "Svelte" },
+      { name: "nodejs", description: "Node.js backend frameworks" },
+      { name: "nextjs", description: "Next.js" },
     ];
   }
 
@@ -327,10 +332,26 @@ class FrameworkDetector extends EventEmitter {
    */
   getSupportedLibraries() {
     return [
-      'jquery', 'lodash', 'axios', 'moment', 'dateFns', 'underscore',
-      'backbone', 'expressValidator', 'mongoose', 'sequelize', 'prisma',
-      'socketio', 'ws', 'graphql', 'redis', 'amqp', 'nodemailer',
-      'bcrypt', 'jsonwebtoken', 'passport'
+      "jquery",
+      "lodash",
+      "axios",
+      "moment",
+      "dateFns",
+      "underscore",
+      "backbone",
+      "expressValidator",
+      "mongoose",
+      "sequelize",
+      "prisma",
+      "socketio",
+      "ws",
+      "graphql",
+      "redis",
+      "amqp",
+      "nodemailer",
+      "bcrypt",
+      "jsonwebtoken",
+      "passport",
     ];
   }
 
@@ -341,12 +362,13 @@ class FrameworkDetector extends EventEmitter {
     return {
       detectionCount: this.detectionCount,
       totalDetectionTime: this.totalDetectionTime,
-      averageDetectionTime: this.detectionCount > 0 
-        ? this.totalDetectionTime / this.detectionCount 
-        : 0,
+      averageDetectionTime:
+        this.detectionCount > 0
+          ? this.totalDetectionTime / this.detectionCount
+          : 0,
       cacheEnabled: !!this.cache,
       cacheStats: this.cache ? this.cache.getStats() : null,
-      version: this.agent.version
+      version: this.agent.version,
     };
   }
 
@@ -437,24 +459,101 @@ async function detectBatch(codes, options = {}) {
   const results = [];
   const batchSize = options.batchSize || 10;
   const onProgress = options.onProgress;
-  
+
   for (let i = 0; i < codes.length; i += batchSize) {
     const batch = codes.slice(i, i + batchSize);
     const batchResults = await Promise.all(
-      batch.map(code => detectAsync(code, options))
+      batch.map((code) => detectAsync(code, options))
     );
     results.push(...batchResults);
-    
+
     if (onProgress) {
       onProgress({
         completed: Math.min(i + batchSize, codes.length),
         total: codes.length,
-        percentage: ((i + batchSize) / codes.length) * 100
+        percentage: ((i + batchSize) / codes.length) * 100,
       });
     }
   }
-  
+
   return results;
+}
+
+/**
+ * Get supported frameworks
+ */
+function getSupportedFrameworks() {
+  return [
+    {
+      name: "react",
+      aliases: ["react", "react-dom", "react-native"],
+      category: "frontend",
+    },
+    {
+      name: "vue",
+      aliases: ["vue", "nuxt", "vue-router", "vuex"],
+      category: "frontend",
+    },
+    { name: "angular", aliases: ["@angular", "ng"], category: "frontend" },
+    { name: "svelte", aliases: ["svelte", "sveltekit"], category: "frontend" },
+    { name: "next", aliases: ["next", "nextjs"], category: "frontend" },
+    { name: "nuxt", aliases: ["nuxt", "nuxtjs"], category: "frontend" },
+    { name: "express", aliases: ["express"], category: "backend" },
+    { name: "koa", aliases: ["koa"], category: "backend" },
+    { name: "fastify", aliases: ["fastify"], category: "backend" },
+    { name: "jquery", aliases: ["jquery", "$"], category: "library" },
+    { name: "lodash", aliases: ["lodash", "_"], category: "library" },
+    { name: "axios", aliases: ["axios"], category: "library" },
+  ];
+}
+
+/**
+ * Get supported libraries
+ */
+function getSupportedLibraries() {
+  return [
+    "react",
+    "react-dom",
+    "react-native",
+    "react-router",
+    "vue",
+    "vue-router",
+    "vuex",
+    "nuxt",
+    "@angular/core",
+    "@angular/common",
+    "@angular/router",
+    "svelte",
+    "sveltekit",
+    "express",
+    "koa",
+    "fastify",
+    "hapi",
+    "jquery",
+    "lodash",
+    "underscore",
+    "ramda",
+    "axios",
+    "fetch",
+    "superagent",
+    "got",
+    "webpack",
+    "rollup",
+    "vite",
+    "esbuild",
+    "redux",
+    "mobx",
+    "zustand",
+    "jotai",
+    "mongoose",
+    "sequelize",
+    "typeorm",
+    "prisma",
+    "pg",
+    "mysql",
+    "mongodb",
+    "redis",
+  ];
 }
 
 /**
@@ -462,83 +561,83 @@ async function detectBatch(codes, options = {}) {
  */
 function getConfigSchema() {
   return {
-    type: 'object',
+    type: "object",
     properties: {
       detectReact: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable React framework detection'
+        description: "Enable React framework detection",
       },
       detectVue: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable Vue.js framework detection'
+        description: "Enable Vue.js framework detection",
       },
       detectAngular: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable Angular framework detection'
+        description: "Enable Angular framework detection",
       },
       detectSvelte: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable Svelte framework detection'
+        description: "Enable Svelte framework detection",
       },
       detectNodejs: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable Node.js backend detection'
+        description: "Enable Node.js backend detection",
       },
       detectNextjs: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable Next.js detection'
+        description: "Enable Next.js detection",
       },
       detectLibraries: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable library detection'
+        description: "Enable library detection",
       },
       detectBuildTools: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable build tool detection'
+        description: "Enable build tool detection",
       },
       detectSecurity: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable security pattern detection'
+        description: "Enable security pattern detection",
       },
       estimateVersions: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Estimate framework versions'
+        description: "Estimate framework versions",
       },
       confidenceThreshold: {
-        type: 'number',
+        type: "number",
         minimum: 0,
         maximum: 1,
         default: 0.5,
-        description: 'Minimum confidence score for detection (0-1)'
+        description: "Minimum confidence score for detection (0-1)",
       },
       verboseLogging: {
-        type: 'boolean',
+        type: "boolean",
         default: false,
-        description: 'Enable verbose logging'
+        description: "Enable verbose logging",
       },
       timeout: {
-        type: 'number',
+        type: "number",
         minimum: 1000,
         maximum: 60000,
         default: 15000,
-        description: 'Detection timeout in milliseconds'
+        description: "Detection timeout in milliseconds",
       },
       enableCache: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable result caching'
-      }
-    }
+        description: "Enable result caching",
+      },
+    },
   };
 }
 
@@ -546,24 +645,24 @@ function getConfigSchema() {
 module.exports = {
   // Main class
   FrameworkDetector,
-  
+
   // Factory functions
   createFrameworkDetector,
-  
+
   // Convenience functions
   detect,
   detectAsync,
   detectBatch,
-  
+
   // Utilities
   getSupportedFrameworks,
   getSupportedLibraries,
   getConfigSchema,
-  
+
   // Constants
-  VERSION: '3.0.0',
+  VERSION: "3.0.0",
   DEFAULT_OPTIONS,
-  
+
   // Re-export agent for direct access
-  FrameworkDetectorAgent
+  FrameworkDetectorAgent,
 };

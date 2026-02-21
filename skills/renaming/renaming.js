@@ -24,6 +24,10 @@ class RenamingSkill {
     this.contextPatterns = this.initializeContextPatterns();
   }
 
+  execute(code, options = {}) {
+    return this.analyze(code, options);
+  }
+
   initializeNamingDatabase() {
     return {
       singleLetter: {
@@ -95,7 +99,16 @@ class RenamingSkill {
         suggestions: ["obj", "data", "config", "options"],
       },
       string: {
-        patterns: /['"`]/, /concat/, /split/, /join/, /substring/, /slice/,
+        patterns: [
+          /'/,
+          /"/,
+          /`/,
+          /concat/,
+          /split/,
+          /join/,
+          /substring/,
+          /slice/,
+        ],
         suggestions: ["str", "text", "value", "content"],
       },
       number: {
@@ -176,33 +189,34 @@ class RenamingSkill {
   }
 
   collectBindings(ast) {
+    const self = this;
     traverse(ast, {
       Program(path) {
         const bindings = path.scope.getAllBindings();
         for (const [name, binding] of Object.entries(bindings)) {
-          this.scopeBindings.set(name, {
+          self.scopeBindings.set(name, {
             type: binding.path.node.type,
-            context: this.inferContext(binding.path),
-            usages: this.countUsages(binding),
+            context: self.inferContext(binding.path),
+            usages: self.countUsages(binding),
           });
         }
-      }.bind(this),
+      },
       FunctionDeclaration(path) {
-        this.scopeBindings.set(path.node.id.name, {
+        self.scopeBindings.set(path.node.id.name, {
           type: "function",
-          context: this.inferFunctionContext(path),
+          context: self.inferFunctionContext(path),
           usages: 1,
         });
-      }.bind(this),
+      },
       VariableDeclarator(path) {
         if (path.node.id.type === "Identifier") {
-          this.scopeBindings.set(path.node.id.name, {
+          self.scopeBindings.set(path.node.id.name, {
             type: "variable",
-            context: this.inferVariableContext(path),
+            context: self.inferVariableContext(path),
             usages: 1,
           });
         }
-      }.bind(this),
+      },
     });
   }
 
@@ -253,10 +267,19 @@ class RenamingSkill {
       return { type: "number", suggestions: this.namingDatabase.common.number };
     }
     if (init.type === "BooleanLiteral") {
-      return { type: "boolean", suggestions: this.namingDatabase.common.boolean };
+      return {
+        type: "boolean",
+        suggestions: this.namingDatabase.common.boolean,
+      };
     }
-    if (init.type === "ArrowFunctionExpression" || init.type === "FunctionExpression") {
-      return { type: "function", suggestions: this.namingDatabase.common.function };
+    if (
+      init.type === "ArrowFunctionExpression" ||
+      init.type === "FunctionExpression"
+    ) {
+      return {
+        type: "function",
+        suggestions: this.namingDatabase.common.function,
+      };
     }
     return { type: "unknown", suggestions: ["value", "data"] };
   }
@@ -287,14 +310,20 @@ class RenamingSkill {
   }
 
   generateName(originalName, info) {
-    if (originalName.length === 1 && this.namingDatabase.singleLetter[originalName]) {
+    if (
+      originalName.length === 1 &&
+      this.namingDatabase.singleLetter[originalName]
+    ) {
       const suggestions = this.namingDatabase.singleLetter[originalName];
       const contextSuggestions = info.context?.suggestions || [];
       const merged = [...new Set([...contextSuggestions, ...suggestions])];
       return merged[0] || "value";
     }
 
-    if (/^_0x[0-9a-fA-F]+$/.test(originalName) || /^_0X[0-9a-fA-F]+$/.test(originalName)) {
+    if (
+      /^_0x[0-9a-fA-F]+$/.test(originalName) ||
+      /^_0X[0-9a-fA-F]+$/.test(originalName)
+    ) {
       const suggestions = info.context?.suggestions || ["value"];
       return suggestions[0];
     }
@@ -351,7 +380,9 @@ class RenamingSkill {
     for (const [, newName] of this.nameMappings) {
       total += newName.length;
     }
-    return this.nameMappings.size > 0 ? (total / this.nameMappings.size).toFixed(2) : 0;
+    return this.nameMappings.size > 0
+      ? (total / this.nameMappings.size).toFixed(2)
+      : 0;
   }
 
   clearCache() {

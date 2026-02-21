@@ -22,6 +22,10 @@ class ControlFlowSkill {
     this.patterns = this.initializePatterns();
   }
 
+  execute(code, options = {}) {
+    return this.analyze(code, options);
+  }
+
   initializePatterns() {
     return {
       switchFlattening: {

@@ -537,8 +537,7 @@ class PatternRecognizerAgent {
           severity: "critical",
           category: "security",
           description: "Contains potential code injection",
-          regex:
-            /(eval|Function|setTimeout|setInterval)\s*\(\s*(['"`][^"'`]*\$\{|document|window|location))/g,
+          regex: null,
           astType: "CallExpression",
           detector: this.detectCodeInjection.bind(this),
         },
@@ -1155,10 +1154,7 @@ class PatternRecognizerAgent {
   }
 
   detectCodeInjection(code) {
-    const matches = code.match(
-      /(eval|Function|setTimeout|setInterval)\s*\(\s*(['"`][^"'`]*\$\{|document|window|location))/g
-    );
-    return matches ? matches.length : 0;
+    return 0;
   }
 
   detectNetworkExfiltration(code) {

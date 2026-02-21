@@ -18,6 +18,10 @@ class ASTSimplificationSkill {
     this.transformers = this.initializeTransformers();
   }
 
+  execute(code, options = {}) {
+    return this.analyze(code, options);
+  }
+
   initializeTransformers() {
     return {
       sequence: this.simplifySequence.bind(this),

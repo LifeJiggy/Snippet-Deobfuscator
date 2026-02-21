@@ -21,6 +21,23 @@ class AntiDebugSkill {
     this.bypasses = this.initializeBypasses();
   }
 
+  execute(code, options = {}) {
+    const detectResult = this.detect(code, options);
+    if (options.bypass && detectResult.detected.length > 0) {
+      const bypassResult = this.bypass(code, detectResult.detected);
+      return {
+        ...detectResult,
+        bypassed: true,
+        bypassedCode: bypassResult.code,
+      };
+    }
+    return detectResult;
+  }
+
+  initializePatterns() {
+    this.bypasses = this.initializeBypasses();
+  }
+
   initializePatterns() {
     return {
       debuggerStatement: {

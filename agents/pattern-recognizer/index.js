@@ -1,12 +1,12 @@
 /**
  * Pattern Recognizer Agent - Module Loader
- * 
+ *
  * Production-grade specialized agent for recognizing obfuscation patterns
  * and code signatures in JavaScript.
- * 
+ *
  * This module provides comprehensive pattern recognition capabilities with support for
  * synchronous and asynchronous operations, progress tracking, caching, and more.
- * 
+ *
  * Features:
  * - Obfuscation pattern detection
  * - Code signature analysis
@@ -14,28 +14,28 @@
  * - Control flow pattern detection
  * - Crypto algorithm detection
  * - Anti-debug detection
- * 
+ *
  * Usage:
  *   // Basic usage
  *   const { PatternRecognizer } = require('./agents/pattern-recognizer');
  *   const agent = new PatternRecognizer();
  *   const result = agent.recognize(code);
- * 
+ *
  *   // Async with events
  *   const { createPatternRecognizer } = require('./agents/pattern-recognizer');
  *   const recognizer = createPatternRecognizer({ verboseLogging: true });
  *   recognizer.on('progress', (progress) => console.log(progress));
  *   const result = await recognizer.recognizeAsync(code);
- * 
+ *
  *   // Batch processing
  *   const { recognizeBatch } = require('./agents/pattern-recognizer');
  *   const results = await recognizeBatch(codeArray);
- * 
+ *
  * For the core implementation, see pattern-recognizer-agent.js
  */
 
-const PatternRecognizerAgent = require('./pattern-recognizer-agent');
-const { EventEmitter } = require('events');
+const PatternRecognizerAgent = require("./pattern-recognizer-agent");
+const { EventEmitter } = require("events");
 
 /**
  * Configuration defaults
@@ -52,7 +52,7 @@ const DEFAULT_OPTIONS = {
   timeout: 30000,
   enableCache: true,
   cacheTTL: 300000,
-  maxPatterns: 1000
+  maxPatterns: 1000,
 };
 
 /**
@@ -68,10 +68,10 @@ class PatternCache {
    * Generate cache key from code and options
    */
   generateKey(code, options) {
-    const hash = require('crypto')
-      .createHash('md5')
+    const hash = require("crypto")
+      .createHash("md5")
       .update(code.substring(0, 2000) + JSON.stringify(options))
-      .digest('hex');
+      .digest("hex");
     return hash;
   }
 
@@ -81,12 +81,12 @@ class PatternCache {
   get(key) {
     const entry = this.cache.get(key);
     if (!entry) return null;
-    
+
     if (Date.now() - entry.timestamp > this.ttl) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return entry.result;
   }
 
@@ -96,7 +96,7 @@ class PatternCache {
   set(key, result) {
     this.cache.set(key, {
       result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -113,7 +113,7 @@ class PatternCache {
   getStats() {
     return {
       size: this.cache.size,
-      entries: Array.from(this.cache.keys())
+      entries: Array.from(this.cache.keys()),
     };
   }
 }
@@ -126,7 +126,9 @@ class PatternRecognizer extends EventEmitter {
     super();
     this.options = { ...DEFAULT_OPTIONS, ...options };
     this.agent = new PatternRecognizerAgent(this.options);
-    this.cache = this.options.enableCache ? new PatternCache(this.options.cacheTTL) : null;
+    this.cache = this.options.enableCache
+      ? new PatternCache(this.options.cacheTTL)
+      : null;
     this.recognitionCount = 0;
     this.totalRecognitionTime = 0;
   }
@@ -139,38 +141,38 @@ class PatternRecognizer extends EventEmitter {
    */
   recognize(code, context = {}) {
     const startTime = Date.now();
-    
+
     // Validate input
     this.validateInput(code);
-    
+
     // Check cache
     if (this.cache) {
       const cacheKey = this.cache.generateKey(code, this.options);
       const cached = this.cache.get(cacheKey);
       if (cached) {
-        this.emit('cacheHit', { key: cacheKey });
+        this.emit("cacheHit", { key: cacheKey });
         return { ...cached, fromCache: true };
       }
     }
 
-    this.emit('recognitionStart', { context });
+    this.emit("recognitionStart", { context });
 
     try {
       const result = this.agent.analyze(code, context);
-      
+
       // Update statistics
       this.recognitionCount++;
       this.totalRecognitionTime += Date.now() - startTime;
-      
+
       // Cache result
       if (this.cache && result.patterns?.length > 0) {
         const cacheKey = this.cache.generateKey(code, this.options);
         this.cache.set(cacheKey, result);
       }
 
-      this.emit('recognitionComplete', { 
+      this.emit("recognitionComplete", {
         recognitionTime: result.analysisTime || Date.now() - startTime,
-        patternsFound: result.patterns?.length || 0
+        patternsFound: result.patterns?.length || 0,
       });
 
       return result;
@@ -183,15 +185,17 @@ class PatternRecognizer extends EventEmitter {
         obfuscation: [],
         crypto: [],
         antiDebug: [],
-        errors: [{
-          type: 'recognition-error',
-          message: error.message,
-          stack: error.stack
-        }],
-        analysisTime: Date.now() - startTime
+        errors: [
+          {
+            type: "recognition-error",
+            message: error.message,
+            stack: error.stack,
+          },
+        ],
+        analysisTime: Date.now() - startTime,
       };
-      
-      this.emit('recognitionError', { error: error.message });
+
+      this.emit("recognitionError", { error: error.message });
       return errorResult;
     }
   }
@@ -205,7 +209,9 @@ class PatternRecognizer extends EventEmitter {
   recognizeAsync(code, context = {}) {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
-        reject(new Error(`Recognition timeout after ${this.options.timeout}ms`));
+        reject(
+          new Error(`Recognition timeout after ${this.options.timeout}ms`)
+        );
       }, this.options.timeout);
 
       try {
@@ -226,33 +232,33 @@ class PatternRecognizer extends EventEmitter {
    */
   async recognizeWithProgress(code) {
     const phases = [
-      { name: 'initialization', weight: 0.05 },
-      { name: 'obfuscationDetection', weight: 0.25 },
-      { name: 'cryptoAnalysis', weight: 0.2 },
-      { name: 'antiDebugDetection', weight: 0.15 },
-      { name: 'stringPatternAnalysis', weight: 0.2 },
-      { name: 'controlFlowAnalysis', weight: 0.15 }
+      { name: "initialization", weight: 0.05 },
+      { name: "obfuscationDetection", weight: 0.25 },
+      { name: "cryptoAnalysis", weight: 0.2 },
+      { name: "antiDebugDetection", weight: 0.15 },
+      { name: "stringPatternAnalysis", weight: 0.2 },
+      { name: "controlFlowAnalysis", weight: 0.15 },
     ];
 
     let cumulativeWeight = 0;
-    
+
     for (const phase of phases) {
-      this.emit('progress', {
+      this.emit("progress", {
         phase: phase.name,
         progress: cumulativeWeight,
-        message: `Running ${phase.name}...`
+        message: `Running ${phase.name}...`,
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 10));
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
       cumulativeWeight += phase.weight;
     }
 
     const result = this.recognize(code);
-    
-    this.emit('progress', {
-      phase: 'complete',
+
+    this.emit("progress", {
+      phase: "complete",
       progress: 1,
-      message: 'Recognition complete'
+      message: "Recognition complete",
     });
 
     return result;
@@ -262,19 +268,20 @@ class PatternRecognizer extends EventEmitter {
    * Validate input code
    */
   validateInput(code) {
-    if (typeof code !== 'string') {
-      throw new Error('Code must be a string');
-    }
-    
-    if (!code.trim()) {
-      throw new Error('Code cannot be empty');
-    }
-    
-    if (code.length > 10000000) { // 10MB limit
-      throw new Error('Code exceeds maximum length of 10MB');
+    if (typeof code !== "string") {
+      throw new Error("Code must be a string");
     }
 
-    this.emit('inputValidated', { length: code.length });
+    if (!code.trim()) {
+      throw new Error("Code cannot be empty");
+    }
+
+    if (code.length > 10000000) {
+      // 10MB limit
+      throw new Error("Code exceeds maximum length of 10MB");
+    }
+
+    this.emit("inputValidated", { length: code.length });
   }
 
   /**
@@ -283,12 +290,12 @@ class PatternRecognizer extends EventEmitter {
    */
   getSupportedPatterns() {
     return [
-      { name: 'obfuscation', description: 'Code obfuscation patterns' },
-      { name: 'crypto', description: 'Cryptographic algorithms' },
-      { name: 'antiDebug', description: 'Anti-debugging techniques' },
-      { name: 'stringPatterns', description: 'String encoding patterns' },
-      { name: 'controlFlow', description: 'Control flow patterns' },
-      { name: 'codeSignatures', description: 'Known code signatures' }
+      { name: "obfuscation", description: "Code obfuscation patterns" },
+      { name: "crypto", description: "Cryptographic algorithms" },
+      { name: "antiDebug", description: "Anti-debugging techniques" },
+      { name: "stringPatterns", description: "String encoding patterns" },
+      { name: "controlFlow", description: "Control flow patterns" },
+      { name: "codeSignatures", description: "Known code signatures" },
     ];
   }
 
@@ -299,12 +306,13 @@ class PatternRecognizer extends EventEmitter {
     return {
       recognitionCount: this.recognitionCount,
       totalRecognitionTime: this.totalRecognitionTime,
-      averageRecognitionTime: this.recognitionCount > 0 
-        ? this.totalRecognitionTime / this.recognitionCount 
-        : 0,
+      averageRecognitionTime:
+        this.recognitionCount > 0
+          ? this.totalRecognitionTime / this.recognitionCount
+          : 0,
       cacheEnabled: !!this.cache,
       cacheStats: this.cache ? this.cache.getStats() : null,
-      version: this.agent.version
+      version: this.agent.version,
     };
   }
 
@@ -395,119 +403,102 @@ async function recognizeBatch(codes, options = {}) {
   const results = [];
   const batchSize = options.batchSize || 10;
   const onProgress = options.onProgress;
-  
+
   for (let i = 0; i < codes.length; i += batchSize) {
     const batch = codes.slice(i, i + batchSize);
     const batchResults = await Promise.all(
-      batch.map(code => recognizeAsync(code, options))
+      batch.map((code) => recognizeAsync(code, options))
     );
     results.push(...batchResults);
-    
+
     if (onProgress) {
       onProgress({
         completed: Math.min(i + batchSize, codes.length),
         total: codes.length,
-        percentage: ((i + batchSize) / codes.length) * 100
+        percentage: ((i + batchSize) / codes.length) * 100,
       });
     }
   }
-  
+
   return results;
 }
 
 /**
- * Get agent configuration schema
+ * Get configuration schema
  */
 function getConfigSchema() {
   return {
-    type: 'object',
+    type: "object",
     properties: {
       detectObfuscation: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable obfuscation pattern detection'
+        description: "Enable obfuscation detection",
       },
       detectCrypto: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable cryptographic pattern detection'
+        description: "Enable cryptographic pattern detection",
       },
       detectAntiDebug: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable anti-debugging pattern detection'
+        description: "Enable anti-debugging technique detection",
       },
       detectStringPatterns: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable string pattern detection'
+        description: "Enable string pattern detection",
       },
       detectControlFlow: {
-        type: 'boolean',
+        type: "boolean",
         default: true,
-        description: 'Enable control flow pattern detection'
+        description: "Enable control flow pattern detection",
       },
-      detectCodeSignatures: {
-        type: 'boolean',
-        default: true,
-        description: 'Enable code signature detection'
+      maxPatternAge: {
+        type: "number",
+        default: 86400000,
+        description: "Maximum age for cached patterns (ms)",
       },
-      confidenceThreshold: {
-        type: 'number',
-        minimum: 0,
-        maximum: 1,
-        default: 0.5,
-        description: 'Minimum confidence for patterns (0-1)'
-      },
-      verboseLogging: {
-        type: 'boolean',
-        default: false,
-        description: 'Enable verbose logging'
-      },
-      timeout: {
-        type: 'number',
-        minimum: 1000,
-        maximum: 60000,
-        default: 30000,
-        description: 'Recognition timeout in milliseconds'
-      },
-      enableCache: {
-        type: 'boolean',
-        default: true,
-        description: 'Enable result caching'
-      },
-      maxPatterns: {
-        type: 'number',
-        minimum: 1,
-        maximum: 10000,
-        default: 1000,
-        description: 'Maximum patterns to detect'
-      }
-    }
+    },
   };
+}
+
+/**
+ * Get supported pattern types
+ */
+function getSupportedPatterns() {
+  return [
+    { name: "obfuscation", description: "Code obfuscation patterns" },
+    { name: "crypto", description: "Cryptographic algorithms" },
+    { name: "antiDebug", description: "Anti-debugging techniques" },
+    { name: "stringPatterns", description: "String encoding patterns" },
+    { name: "controlFlow", description: "Control flow patterns" },
+    { name: "codeSignatures", description: "Known code signatures" },
+  ];
 }
 
 // Export all utilities
 module.exports = {
   // Main class
   PatternRecognizer,
-  
+
   // Factory functions
   createPatternRecognizer,
-  
+
   // Convenience functions
   recognize,
   recognizeAsync,
   recognizeBatch,
-  
+
   // Utilities
   getSupportedPatterns,
   getConfigSchema,
-  
+
   // Constants
-  VERSION: '3.0.0',
+  VERSION: "3.0.0",
   DEFAULT_OPTIONS,
-  
+
   // Re-export agent for direct access
-  PatternRecognizerAgent
+  PatternRecognizerAgent,
 };

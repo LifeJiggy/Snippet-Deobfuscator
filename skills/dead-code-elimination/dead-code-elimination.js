@@ -23,6 +23,10 @@ class DeadCodeEliminationSkill {
     this.usedBindings = new Set();
   }
 
+  execute(code, options = {}) {
+    return this.eliminate(code, options);
+  }
+
   eliminate(code, options = {}) {
     this.stats = {
       unreachableCode: 0,

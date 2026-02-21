@@ -477,130 +477,23 @@ const deadCodeElimination = {
 // ============================================
 
 const webpackReconstructor = {
-  // Reconstruct webpack bundle structure
+  // Minimal webpack cleanup to avoid prettier issues
   reconstruct: (code) => {
     let result = code;
 
-    // Identify and name chunks
-    result = webpackReconstructor.identifyChunks(result);
-    // Clean up webpack boilerplate
-    result = webpackReconstructor.cleanBoilerplate(result);
-    // Extract module exports
-    result = webpackReconstructor.extractExports(result);
-    // Add comments for chunk boundaries
-    result = webpackReconstructor.addChunkComments(result);
-
-    return result;
-  },
-
-  identifyChunks: (code) => {
-    // Match: (globalThis.webpackChunk = globalThis.webpackChunk || []).push([["name"], ...
-    const chunkPattern =
-      /\(globalThis\.(\w+)\s*=\s*globalThis\.\1\s*\|\|\s*\[\]\)\.push\(\[\[?(\[[^\]]+\]|[^,\]]+)\]?,/g;
-
-    return code.replace(chunkPattern, (match, chunkName, chunkId) => {
-      let name = chunkId.replace(/[\[\]"]/g, "").trim();
-      if (name.match(/^\d+$/)) {
-        name = `chunk_${name}`;
-      }
-      return `(globalThis.${chunkName}=globalThis.${chunkName}||[]).push([["${name}"],`;
-    });
-  },
-
-  cleanBoilerplate: (code) => {
-    let result = code;
-
-    // Remove webpack manifest boilerplate completely
+    // Clean up webpack require calls
     result = result.replace(
-      /\(globalThis\.\w+\s*=\s*globalThis\.\w+\s*\|\|\s*\[\]\)\.push\(/g,
-      ""
+      /__webpack_require__\.\w+\((\d+)\)/g,
+      "require($1)"
     );
-
-    // Clean up __webpack_require__ calls - NO comments to avoid prettier issues
-    result = result.replace(
-      /(__webpack_require__\.\w+)\((\d+)\)/g,
-      "require($2)"
-    );
-    result = result.replace(/(__webpack_require__)\(/g, "require(");
-
-    // Clean up webpack runtime
+    result = result.replace(/__webpack_require__\(/g, "require(");
     result = result.replace(/__r\(\s*(\d+)\s*\)/g, "require($1)");
 
     // Clean up chunk loading
-    result = result.replace(/\.e\.get\((\d+)\)/g, ".$1($1)");
-    result = result.replace(/\.e\((\d+)\)/g, ".$1($1)");
+    result = result.replace(/\.e\.get\((\d+)\)/g, ".loadChunk($1)");
+    result = result.replace(/\.e\((\d+)\)/g, ".__e($1)");
 
     return result;
-  },
-
-  extractExports: (code) => {
-    // Find module.exports assignments - clean up existing patterns
-    const exportPattern = /(\w+)\.exports\s*=/g;
-    let result = code.replace(exportPattern, (match, moduleName) => {
-      return `${match}`;
-    });
-
-    // Find named exports - keep clean
-    result = result.replace(/exports\.(\w+)\s*=/g, "exports.$1 =");
-
-    return result;
-  },
-
-  addChunkComments: (code) => {
-    const lines = code.split("\n");
-    const result = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-
-      // Add comment before chunk definitions (avoid breaking regex)
-      if (line.includes(".push([") || line.includes(".push(")) {
-        result.push("");
-        result.push("/* webpack chunk start */");
-        result.push("");
-      }
-
-      result.push(line);
-
-      // Add comment after module function
-      if (line.includes("function (") && line.includes("module")) {
-        result.push("/* module end */");
-      }
-    }
-
-    return result.join("\n");
-  },
-
-  // Map numeric IDs to meaningful names based on patterns
-  mapModuleIds: (code, moduleMap = {}) => {
-    // Common patterns for mapping
-    const patterns = [
-      { regex: /React/, name: "react" },
-      { regex: /ReactDOM/, name: "react-dom" },
-      { regex: /createElement/, name: "react" },
-      { regex: /useState/, name: "react" },
-      { regex: /useEffect/, name: "react" },
-      { regex: /fetch/, name: "fetch" },
-      { regex: /axios/, name: "axios" },
-      { regex: /lodash/, name: "lodash" },
-      { regex: /jQuery|\$/, name: "jquery" },
-    ];
-
-    // Replace numeric IDs with named ones where possible
-    return code.replace(/\((\d+)\)/g, (match, id) => {
-      if (moduleMap[id]) {
-        return `(${moduleMap[id]})`;
-      }
-
-      // Try to infer from context
-      for (const pattern of patterns) {
-        if (code.includes(pattern.regex)) {
-          return `(${pattern.name}_${id})`;
-        }
-      }
-
-      return match;
-    });
   },
 };
 
@@ -850,7 +743,6 @@ module.exports = {
   decodeUnicodeString,
   decodeObfuscatedApostropheString,
   decodeReactObfuscatedStrings,
-  // New exports
   stringDecryption,
   deadCodeElimination,
   webpackReconstructor,
